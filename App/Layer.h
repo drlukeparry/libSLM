@@ -27,8 +27,8 @@ public:
 
     typedef std::shared_ptr<LayerGeometry> Ptr;
 
-    LayerGeometry() {}
-    ~LayerGeometry();
+    LayerGeometry();
+    virtual ~LayerGeometry();
 
 public:
     enum TYPE {
@@ -40,8 +40,8 @@ public:
 
     Eigen::MatrixXf coords;
 
-    uint32_t mid;
-    uint32_t bid;
+    uint32_t mid = 0;
+    uint32_t bid = 0;
 
     //  Type may only be set upon initialisation
     virtual TYPE getType() const { return type; }
@@ -133,8 +133,8 @@ public:
     uint64_t getLayerId() const { return lid; }
 
 protected:
-    uint64_t lid;    // Layer ID
-    uint64_t z;      // Z Layer Position
+    uint64_t lid = 0;    // Layer ID
+    uint64_t z = 0;      // Z Layer Position
     std::vector<LayerGeometry::Ptr> geometry;
 };
 

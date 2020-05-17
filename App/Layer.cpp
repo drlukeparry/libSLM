@@ -5,11 +5,17 @@
 
 using namespace slm;
 
+LayerGeometry::LayerGeometry() : mid(0),
+                                 bid(0)
+{
+}
+
 LayerGeometry::~LayerGeometry()
 {
 }
 
-Layer::Layer()
+Layer::Layer() : lid(0),
+                 z(0)
 {
 }
 
