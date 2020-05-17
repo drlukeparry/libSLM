@@ -47,15 +47,13 @@ else(WIN32)
 
 endif(WIN32)
 
-set(Boost_USE_STATIC_LIBS  OFF) # Use boost static library
-
 # Find Required packages
 find_package(TBB)
 find_package(Boost COMPONENTS filesystem REQUIRED)
 find_package (Eigen3 3.3 REQUIRED)
 
 if(BUILD_PYTHON)
-    find_package(pybind11)
+    add_subdirectory(External/pybind11)
 endif(BUILD_PYTHON)
 
 include_directories(
