@@ -46,8 +46,6 @@ else(WIN32)
 
     # Find Required packages
     find_package(Eigen3 3.3 REQUIRED)
-
-
 endif(WIN32)
 
 
@@ -58,7 +56,6 @@ endif(WIN32)
 set(CPP_FILESYSTEM
     External/filesystem
 )
-
 
 
 if(BUILD_PYTHON)
@@ -81,24 +78,35 @@ set(BASE_SRCS
 
 SOURCE_GROUP("Base" FILES ${BASE_SRCS})
 
-set(APP_SRCS
+
+set(APP_H_SRCS
     App/Header.h
-#    App/Iterator.cpp
 #    App/Iterator.h
-    App/Layer.cpp
     App/Layer.h
-    App/Model.cpp
     App/Model.h
-    App/Reader.cpp
     App/Reader.h
-#    App/Slm.cpp
 #    App/Slm.h
-    App/Writer.cpp
     App/Writer.h
 )
 
 
-SOURCE_GROUP("App" FILES ${APP_SRCS})
+set(APP_CPP_SRCS
+#    App/Iterator.cpp
+    App/Layer.cpp
+    App/Model.cpp
+    App/Reader.cpp
+#    App/Slm.cpp
+    App/Writer.cpp
+)
+
+set(APP_SRCS
+    ${APP_H_SRCS}
+    ${APP_CPP_SRCS}
+)
+
+SOURCE_GROUP("App" FILES
+    ${APP_SRCS}
+)
 
 set(LIBSLM_SRCS
     ${BASE_SRCS}
@@ -136,7 +144,9 @@ if(BUILD_PYTHON)
     #add_library(example MODULE main.cpp)
     target_link_libraries(slm PRIVATE pybind11::module SLM MTT)
     set_target_properties(slm PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
-                                            SUFFIX "${PYTHON_MODULE_EXTENSION}")
+                                         SUFFIX "${PYTHON_MODULE_EXTENSION}")
+
+    install(TARGETS slm DESTINATION lib/libSLM)
 
 
 endif(BUILD_PYTHON)
@@ -148,11 +158,9 @@ set(App_SRCS
 add_executable(main ${App_SRCS})
 target_link_libraries(main SLM MTT)
 
-install(DIRECTORY App Base Translators DESTINATION include/libSLM
-        FILES_MATCHING PATTERN "*.h")
-
 install(FILES
- ${PROJECT_BINARY_DIR}/SLM_Export.h DESTINATION include/libSLM
+ ${CMAKE_CURRENT_BINARY_DIR}/SLM_Export.h
+ ${APP_H_SRCS}
+ DESTINATION include/libSLM
 )
-
 install(TARGETS SLM DESTINATION lib/libSLM)
