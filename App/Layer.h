@@ -62,7 +62,11 @@ public:
 template <LayerGeometry::TYPE T>
 class SLM_EXPORT LayerGeometryT : public LayerGeometry
 {
+
 public:
+
+    typedef std::shared_ptr<LayerGeometryT> Ptr;
+
     LayerGeometryT() {}
     LayerGeometryT(uint32_t modelId, uint32_t buildStyleId) : LayerGeometry(modelId, buildStyleId) {}
     ~LayerGeometryT() {}
@@ -111,8 +115,6 @@ public:
 
 #endif
 
-
-
 class SLM_EXPORT Layer
 {
 public:
@@ -120,7 +122,7 @@ public:
     typedef std::shared_ptr<Layer> Ptr;
 
     Layer();
-    Layer(uint64_t id, uint64_t val);
+    Layer(uint64_t id, uint64_t zVal);
     ~Layer();
 
 public:
@@ -130,15 +132,25 @@ public:
     /**
      * Setters
      */
-    void setLayerId(uint64_t id) { this->lid = id;}
-    void setZ(uint64_t val) { this->z = val; }
+    void setLayerId(uint64_t id);
+    void setZ(uint64_t val);
 
     // Add different types of geometry to each layer
+    template <class T>
+    int64_t addGeometry(typename T::Ptr geom) {
+        if(!geom)
+            return -1;
+
+        geometry.push_back(geom);
+
+        return geometry.size();
+    }
+
     int64_t addContourGeometry(LayerGeometry::Ptr geom);
     int64_t addHatchGeometry(LayerGeometry::Ptr geom);
     int64_t addPntsGeometry(LayerGeometry::Ptr geom);
 
-    void setGeometry(const std::vector<LayerGeometry::Ptr> &geoms) { geometry = geoms; }
+    void setGeometry(const std::vector<LayerGeometry::Ptr> &geoms);
 
     template <class T>
     std::vector<LayerGeometry::Ptr> getGeometryByType () {

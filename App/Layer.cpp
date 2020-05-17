@@ -25,18 +25,33 @@ Layer::Layer() : lid(0),
 {
 }
 
-Layer::Layer(uint64_t id, uint64_t val) :  lid(id),
-                                           z(val)
+Layer::Layer(uint64_t id, uint64_t zVal) :  lid(id),
+                                            z(zVal)
 {
 }
 
 Layer::~Layer()
 {
+    geometry.clear();
+}
+
+void Layer::setLayerId(uint64_t id)
+{
+    lid = id;
+}
+
+void Layer::setZ(uint64_t val)
+{
+    z = val;
 }
 
 void Layer::clear()
 {
     geometry.clear();
+}
+
+void Layer::setGeometry(const std::vector<LayerGeometry::Ptr> &geoms) {
+    geometry = geoms;
 }
 
 int64_t Layer::addContourGeometry(LayerGeometry::Ptr geom)

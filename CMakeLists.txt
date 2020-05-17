@@ -12,11 +12,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR OFF)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cMake")
 # Instruct CMake to run moc automatically when needed.
 
-
-#SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY lib)
-#SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY lib)
-#SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
-
 # Copy the include directory if specified
 set(INCLUDE_INSTALL_DIR "${INCLUDE_INSTALL_DIR}/libSLM")
 
@@ -114,7 +109,7 @@ set(LIBSLM_SRCS
 )
 
 # Add the library
-add_library(SLM SHARED ${LIBSLM_SRCS})
+add_library(SLM STATIC ${LIBSLM_SRCS})
 
 GENERATE_EXPORT_HEADER(SLM
              BASE_NAME SLM
@@ -129,10 +124,7 @@ target_link_libraries(SLM)
 
 add_subdirectory(Translators)
 
-
 if(BUILD_PYTHON)
-    #add_subdirectory(External/pybind11)
-
     set(LIBSLM_PY_SRCS
         Python/module.cpp
     )
@@ -148,7 +140,6 @@ if(BUILD_PYTHON)
 
     install(TARGETS slm DESTINATION lib/libSLM)
 
-
 endif(BUILD_PYTHON)
 
 set(App_SRCS
@@ -159,8 +150,9 @@ add_executable(main ${App_SRCS})
 target_link_libraries(main SLM MTT)
 
 install(FILES
- ${CMAKE_CURRENT_BINARY_DIR}/SLM_Export.h
- ${APP_H_SRCS}
- DESTINATION include/libSLM
+    ${CMAKE_CURRENT_BINARY_DIR}/SLM_Export.h
+    ${APP_H_SRCS}
+    DESTINATION include/libSLM
 )
-install(TARGETS SLM DESTINATION lib/libSLM)
+
+#install(TARGETS SLM DESTINATION lib/libSLM)
