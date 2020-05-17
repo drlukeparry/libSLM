@@ -10,7 +10,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INCLUDE_CURRENT_DIR OFF)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cMake")
-set(BUILD_SHARED_LIBS Off)
 # Instruct CMake to run moc automatically when needed.
 
 
@@ -23,7 +22,6 @@ set(INCLUDE_INSTALL_DIR "${INCLUDE_INSTALL_DIR}/libSLM")
 
 # Generate DLL Pragma for creating shared libraries in Windows
 include (GenerateExportHeader)
-
 
 option(BUILD_PYTHON "Builds a python extension" ON)
 
@@ -43,14 +41,25 @@ if(WIN32)
     SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
 else(WIN32)    
+
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
+    # Find Required packages
+    find_package(Eigen3 3.3 REQUIRED)
+
 
 endif(WIN32)
 
-# Find Required packages
-find_package(TBB)
-find_package(Boost COMPONENTS filesystem REQUIRED)
-find_package (Eigen3 3.3 REQUIRED)
+
+# Use the replacement of Boost::filesystem from a git submodule provided by WJakob
+# in order to reduce compile time dependencies
+# https://github.com/wjakob/filesystem
+
+set(CPP_FILESYSTEM
+    External/filesystem
+)
+
+
 
 if(BUILD_PYTHON)
     add_subdirectory(External/pybind11)
@@ -63,7 +72,7 @@ include_directories(
     ${CMAKE_BINARY_DIR}
     ${Qt5Core_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIR}
-    ${Boost_INCLUDE_DIRS}
+    ${CPP_FILESYSTEM}
 )
 
 set(BASE_SRCS
@@ -108,7 +117,7 @@ GENERATE_EXPORT_HEADER(SLM
 
 
 SOURCE_GROUP("App" FILES ${App_SRCS})
-target_link_libraries(SLM Boost::filesystem)
+target_link_libraries(SLM)
 
 add_subdirectory(Translators)
 
@@ -125,7 +134,7 @@ if(BUILD_PYTHON)
     pybind11_add_module(slm ${LIBSLM_PY_SRCS})
 
     #add_library(example MODULE main.cpp)
-    target_link_libraries(slm PRIVATE pybind11::module SLM MTT Boost::filesystem)
+    target_link_libraries(slm PRIVATE pybind11::module SLM MTT)
     set_target_properties(slm PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
                                             SUFFIX "${PYTHON_MODULE_EXTENSION}")
 

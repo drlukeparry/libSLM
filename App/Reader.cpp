@@ -2,7 +2,9 @@
 #include <iostream>
 #include <fstream>
 
-#include <boost/filesystem.hpp>
+#include <filesystem/fwd.h>
+#include <filesystem/resolver.h>
+#include <filesystem/path.h>
 
 #include "Layer.h"
 #include "Model.h"
@@ -12,7 +14,7 @@
 using namespace slm;
 using namespace base;
 
-namespace fs = boost::filesystem;
+namespace fs = filesystem;
 
 Reader::Reader(const std::string &fileLoc) : ready(false)
 {
@@ -33,13 +35,13 @@ void Reader::setFilePath(std::string path)
 {
     fs::path checkPath(path);
 
-    if (!(fs::exists(checkPath) &&
-          fs::is_regular_file(checkPath))) {
-        std::cerr << "File '" << checkPath.string() << "' does not exist." << std::endl;
+    if (!(checkPath.exists() &&
+          checkPath.is_file()) ) {
+        std::cerr << "File '" << checkPath.str() << "' does not exist." << std::endl;
         this->setReady(false);
     } else {
         this->setReady(true);
-        std::cout << "File '" << checkPath.string() << "' is ready to read" << std::endl;
+        std::cout << "File '" << checkPath.str() << "' is ready to read" << std::endl;
 
         this->filePath = path;
     }

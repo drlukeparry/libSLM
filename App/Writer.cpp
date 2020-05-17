@@ -1,10 +1,13 @@
 #include <iostream>
 #include <fstream>
-#include <boost/filesystem.hpp>
+
+#include <filesystem/fwd.h>
+#include <filesystem/resolver.h>
+#include <filesystem/path.h>
 
 #include "Writer.h"
 
-namespace fs = boost::filesystem;
+namespace fs = filesystem;
 
 using namespace slm;
 using namespace base;
