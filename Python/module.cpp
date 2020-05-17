@@ -205,6 +205,12 @@ public:
 
 protected:
     std::string geomType;
+    namespace slm {
+        //template <> class LayerGeometryT<LayerGeometry::PNTS>;
+        using HatchGeometry   = slm::LayerGeometryT<LayerGeometry::HATCH>;
+        using ContourGeometry = slm::LayerGeometryT<LayerGeometry::POLYGON>;
+        using PntsGeometry    = slm::LayerGeometryT<LayerGeometry::PNTS>;
+    }
     quint16 bid;
     quint16 mid;
     QVector<QPointF> coords;
@@ -255,6 +261,12 @@ void exportMTT(PySLMHeader *pyHeader, const std::vector<PyModel *> & models, con
         slmModel->setId(model->getMid());
         slmModel->setTopSlice(model->topLayerId());
 
+        namespace slm {
+            //template <> class LayerGeometryT<LayerGeometry::PNTS>;
+            using HatchGeometry   = slm::LayerGeometryT<LayerGeometry::HATCH>;
+            using ContourGeometry = slm::LayerGeometryT<LayerGeometry::POLYGON>;
+            using PntsGeometry    = slm::LayerGeometryT<LayerGeometry::PNTS>;
+        }
 
         for(PyBuildStyle *bstyle : model->getBuildStyles()) {
             MTT::BuildStyle *slmBuildStyle = new MTT::BuildStyle();
@@ -354,15 +366,21 @@ PYBIND11_MODULE(slm, m) {
         .def_property("type", &LayerGeometry::getType, nullptr);
 
     py::class_<slm::ContourGeometry, slm::LayerGeometry>(m, "ContourGeometry")
+        .def(py::init())
+        .def(py::init<uint32_t, uint32_t>(), py::arg("mid"), py::arg("bid"))
         .def_property("type", &ContourGeometry::getType, nullptr);
 
     py::class_<slm::HatchGeometry, slm::LayerGeometry>(m, "HatchGeometry")
+         .def(py::init())
+         .def(py::init<uint32_t, uint32_t>(), py::arg("mid"), py::arg("bid"))
          .def_property("type", &HatchGeometry::getType, nullptr);
 
     py::class_<slm::PntsGeometry, slm::LayerGeometry>(m, "PointsGeometry")
+         .def(py::init())
+         .def(py::init<uint32_t, uint32_t>(), py::arg("mid"), py::arg("bid"))
          .def_property("type", &PntsGeometry::getType, nullptr);
 
-    py::enum_<slm::LayerGeometry::TYPE>(layerGeomPyType, "Kind")
+    py::enum_<slm::LayerGeometry::TYPE>(layerGeomPyType, "LayerGeometryType")
         .value("Invalid", slm::LayerGeometry::TYPE::INVALID)
         .value("Pnts", slm::LayerGeometry::TYPE::PNTS)
         .value("Polygon", slm::LayerGeometry::TYPE::POLYGON)

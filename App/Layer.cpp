@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <algorithm>
+#include <exception>
 
 #include "Layer.h"
 
@@ -7,6 +8,11 @@ using namespace slm;
 
 LayerGeometry::LayerGeometry() : mid(0),
                                  bid(0)
+{
+}
+
+LayerGeometry::LayerGeometry(uint32_t modelId, uint32_t buildStyleId ) : mid(modelId),
+                                                                         bid(buildStyleId)
 {
 }
 
@@ -146,3 +152,7 @@ std::vector<LayerGeometry::Ptr > Layer::getGeometry(ScanMode mode) const
     }
 }
 
+namespace slm {
+
+
+}

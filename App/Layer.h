@@ -26,7 +26,7 @@ class SLM_EXPORT LayerGeometry
 public:
 
     typedef std::shared_ptr<LayerGeometry> Ptr;
-
+    LayerGeometry(uint32_t modelId, uint32_t buildStyleId );
     LayerGeometry();
     virtual ~LayerGeometry();
 
@@ -40,9 +40,18 @@ public:
 
     Eigen::MatrixXf coords;
 
+#if 0
+    uint32_t mid() const { return mid; }
+    uint32_t bid() const { return bid; }
+#endif
+
+protected:
+    uint32_t modelId = 0;
+    uint32_t buildId = 0;
+
+public:
     uint32_t mid = 0;
     uint32_t bid = 0;
-
     //  Type may only be set upon initialisation
     virtual TYPE getType() const { return type; }
 
@@ -50,6 +59,19 @@ public:
     const static TYPE type = INVALID;
 };
 
+template <LayerGeometry::TYPE T>
+class SLM_EXPORT LayerGeometryT : public LayerGeometry
+{
+public:
+    LayerGeometryT() {}
+    LayerGeometryT(uint32_t modelId, uint32_t buildStyleId) : LayerGeometry(modelId, buildStyleId) {}
+    ~LayerGeometryT() {}
+
+public:
+    const static TYPE type = T;
+    virtual TYPE getType() const { return type; }
+};
+#if 0
 
 class SLM_EXPORT ContourGeometry : public LayerGeometry
 {
@@ -73,6 +95,9 @@ public:
     virtual TYPE getType() const { return type; }
 };
 
+
+
+
 class SLM_EXPORT PntsGeometry : public LayerGeometry
 {
 public:
@@ -83,6 +108,9 @@ public:
     const static TYPE type = PNTS;
     virtual TYPE getType() const { return type; }
 };
+
+#endif
+
 
 
 class SLM_EXPORT Layer
@@ -138,6 +166,11 @@ protected:
     std::vector<LayerGeometry::Ptr> geometry;
 };
 
+using HatchGeometry   = slm::LayerGeometryT<LayerGeometry::HATCH>;
+using ContourGeometry = slm::LayerGeometryT<LayerGeometry::POLYGON>;
+using PntsGeometry    = slm::LayerGeometryT<LayerGeometry::PNTS>;
+
 } // End of Namespace slm
+
 
 #endif // SLM_LAYER_H_HEADER_HAS_BEEN_INCLUDED
