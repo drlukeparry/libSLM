@@ -141,21 +141,24 @@ public:
         if(!geom)
             return -1;
 
-        geometry.push_back(geom);
+        mGeometry.push_back(geom);
 
-        return geometry.size();
+        return mGeometry.size();
     }
+
+    void appendGeometry(LayerGeometry::Ptr geom);
 
     int64_t addContourGeometry(LayerGeometry::Ptr geom);
     int64_t addHatchGeometry(LayerGeometry::Ptr geom);
     int64_t addPntsGeometry(LayerGeometry::Ptr geom);
 
+    const std::vector<LayerGeometry::Ptr> & geometry() const { return mGeometry; }
     void setGeometry(const std::vector<LayerGeometry::Ptr> &geoms);
 
     template <class T>
     std::vector<LayerGeometry::Ptr> getGeometryByType () {
         std::vector<LayerGeometry::Ptr> geoms;
-        for(LayerGeometry::Ptr geom : geometry) {
+        for(LayerGeometry::Ptr geom : mGeometry) {
             if(geom->getType() == T::type){geoms.push_back(geom);}
         }
         return geoms;
@@ -175,7 +178,7 @@ public:
 protected:
     uint64_t lid = 0;    // Layer ID
     uint64_t z = 0;      // Z Layer Position
-    std::vector<LayerGeometry::Ptr> geometry;
+    std::vector<LayerGeometry::Ptr> mGeometry;
 };
 
 using HatchGeometry   = slm::LayerGeometryT<LayerGeometry::HATCH>;

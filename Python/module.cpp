@@ -28,7 +28,7 @@ PYBIND11_MODULE(slm, m) {
 
     )pbdoc";
 
-    py::class_<slm::LayerGeometry> layerGeomPyType(m, "LayerGeometry");
+    py::class_<slm::LayerGeometry, std::shared_ptr<slm::LayerGeometry>> layerGeomPyType(m, "LayerGeometry", py::dynamic_attr());
 
     layerGeomPyType.def(py::init())
         .def_readwrite("bid", &LayerGeometry::bid)
@@ -36,17 +36,17 @@ PYBIND11_MODULE(slm, m) {
         .def_readwrite("coords", &LayerGeometry::coords)
         .def_property("type", &LayerGeometry::getType, nullptr);
 
-    py::class_<slm::ContourGeometry, slm::LayerGeometry>(m, "ContourGeometry")
+    py::class_<slm::ContourGeometry, slm::LayerGeometry, std::shared_ptr<slm::ContourGeometry>>(m, "ContourGeometry", py::dynamic_attr())
         .def(py::init())
         .def(py::init<uint32_t, uint32_t>(), py::arg("mid"), py::arg("bid"))
         .def_property("type", &ContourGeometry::getType, nullptr);
 
-    py::class_<slm::HatchGeometry, slm::LayerGeometry>(m, "HatchGeometry")
+    py::class_<slm::HatchGeometry, slm::LayerGeometry, std::shared_ptr<HatchGeometry>>(m, "HatchGeometry", py::dynamic_attr())
          .def(py::init())
          .def(py::init<uint32_t, uint32_t>(), py::arg("mid"), py::arg("bid"))
          .def_property("type", &HatchGeometry::getType, nullptr);
 
-    py::class_<slm::PntsGeometry, slm::LayerGeometry>(m, "PointsGeometry")
+    py::class_<slm::PntsGeometry, slm::LayerGeometry, std::shared_ptr<slm::PntsGeometry>>(m, "PointsGeometry", py::dynamic_attr())
          .def(py::init())
          .def(py::init<uint32_t, uint32_t>(), py::arg("mid"), py::arg("bid"))
          .def_property("type", &PntsGeometry::getType, nullptr);
@@ -59,14 +59,14 @@ PYBIND11_MODULE(slm, m) {
         .export_values();
 
 
-    py::class_<slm::Header>(m, "Header")
+    py::class_<slm::Header>(m, "Header", py::dynamic_attr())
         .def(py::init())
         //.def(py::init(&PySLMHeader::create))
         .def_readwrite("filename", &Header::fileName)
         .def_property("version",  &Header::version, &Header::setVersion)
         .def_readwrite("zUnit",    &Header::zUnit);
 
-    py::class_<slm::BuildStyle>(m, "BuildStyle")
+    py::class_<slm::BuildStyle, std::shared_ptr<slm::BuildStyle>>(m, "BuildStyle", py::dynamic_attr())
         .def(py::init())
         .def_readwrite("bid",               &BuildStyle::id)
         .def_readwrite("laserPower",        &BuildStyle::laserPower)
@@ -81,7 +81,7 @@ PYBIND11_MODULE(slm, m) {
                          py::arg("pointExposureDistance"),
                          py::arg("speed") = 0);
 
-    py::class_<slm::Model>(m, "Model")
+    py::class_<slm::Model, std::shared_ptr<slm::Model>>(m, "Model", py::dynamic_attr())
         .def(py::init())
         .def_property("mid", &Model::getId, &Model::setId)
         .def("__len__", [](const Model &s ) { return s.getBuildStyles().size(); })
@@ -95,13 +95,15 @@ PYBIND11_MODULE(slm, m) {
         .value("HatchFirst", ScanMode::HATCH_FIRST)
         .export_values();
 
-    py::class_<slm::Layer>(m, "Layer")
+    py::class_<slm::Layer, std::shared_ptr<slm::Layer>>(m, "Layer", py::dynamic_attr())
         .def(py::init())
         .def(py::init<uint64_t, uint64_t>(), py::arg("id"), py::arg("z"))
-        .def("__len__", [](const Layer &s ) { return s.getGeometry().size(); })
+        .def("__len__", [](const Layer &s ) { return s.geometry().size(); })
         .def("getPointsGeometry", &Layer::getPntsGeometry)
         .def("getHatchGeometry", &Layer::getHatchGeometry)
         .def("getContourGeometry", &Layer::getContourGeometry)
+        .def("appendGeometry", &Layer::appendGeometry)
+        .def_property("geometry", &Layer::geometry, &Layer::setGeometry)
         .def_property("z", &Layer::getZ, &Layer::setZ)
         .def_property("layerId", &Layer::getLayerId, &Layer::setLayerId)
         .def("getGeometry", &Layer::getGeometry, py::arg("scanMode") = slm::ScanMode::NONE);

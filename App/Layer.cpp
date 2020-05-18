@@ -32,7 +32,7 @@ Layer::Layer(uint64_t id, uint64_t zVal) :  lid(id),
 
 Layer::~Layer()
 {
-    geometry.clear();
+    mGeometry.clear();
 }
 
 void Layer::setLayerId(uint64_t id)
@@ -47,11 +47,20 @@ void Layer::setZ(uint64_t val)
 
 void Layer::clear()
 {
-    geometry.clear();
+    mGeometry.clear();
 }
 
 void Layer::setGeometry(const std::vector<LayerGeometry::Ptr> &geoms) {
-    geometry = geoms;
+    mGeometry = geoms;
+}
+
+
+void Layer::appendGeometry(LayerGeometry::Ptr geom)
+{
+    if(!geom)
+        return;
+
+    mGeometry.push_back(geom);
 }
 
 int64_t Layer::addContourGeometry(LayerGeometry::Ptr geom)
@@ -61,9 +70,9 @@ int64_t Layer::addContourGeometry(LayerGeometry::Ptr geom)
 
     assert(geom->getType() == LayerGeometry::POLYGON);
 
-    geometry.push_back(geom);
+    mGeometry.push_back(geom);
 
-    return geometry.size();
+    return mGeometry.size();
 }
 
 int64_t Layer::addHatchGeometry(LayerGeometry::Ptr geom)
@@ -73,9 +82,9 @@ int64_t Layer::addHatchGeometry(LayerGeometry::Ptr geom)
 
     assert(geom->getType() == LayerGeometry::HATCH);
 
-    geometry.push_back(geom);
+    mGeometry.push_back(geom);
 
-    return geometry.size();
+    return mGeometry.size();
 }
 
 int64_t Layer::addPntsGeometry(LayerGeometry::Ptr geom)
@@ -85,8 +94,8 @@ int64_t Layer::addPntsGeometry(LayerGeometry::Ptr geom)
 
     assert(geom->getType() == LayerGeometry::PNTS);
 
-    geometry.push_back(geom);
-    return geometry.size(); // Return updated size
+    mGeometry.push_back(geom);
+    return mGeometry.size(); // Return updated size
 }
 
 
@@ -94,7 +103,7 @@ std::vector<LayerGeometry::Ptr > Layer::getContourGeometry() const
 {
     std::vector<LayerGeometry::Ptr> contourGeomList;
 
-    for(auto geom : geometry) {
+    for(auto geom : mGeometry) {
         if (geom->getType() == LayerGeometry::POLYGON)
             contourGeomList.push_back(geom);
     }
@@ -106,7 +115,7 @@ std::vector<LayerGeometry::Ptr > Layer::getHatchGeometry() const
 {
     std::vector<LayerGeometry::Ptr> geomList;
 
-    for(auto geom : geometry) {
+    for(auto geom : mGeometry) {
         if (geom->getType() == LayerGeometry::HATCH)
             geomList.push_back(geom);
     }
@@ -118,7 +127,7 @@ std::vector<LayerGeometry::Ptr > Layer::getPntsGeometry() const
 {
     std::vector<LayerGeometry::Ptr> geomList;
 
-    for(auto geom : geometry) {
+    for(auto geom : mGeometry) {
         if (geom->getType() == LayerGeometry::PNTS)
             geomList.push_back(geom);
     }
@@ -138,7 +147,7 @@ std::vector<LayerGeometry::Ptr > Layer::getGeometry(ScanMode mode) const
 
 
 
-        for(auto it = geometry.cbegin(); it != geometry.cend(); ++it) {
+        for(auto it = mGeometry.cbegin(); it != mGeometry.cend(); ++it) {
            if((*it)->getType() == LayerGeometry::PNTS) {
                points.push_back(*it);
            } else if((*it)->getType() == LayerGeometry::POLYGON) {
@@ -163,7 +172,7 @@ std::vector<LayerGeometry::Ptr > Layer::getGeometry(ScanMode mode) const
         return list;
 
     } else {
-        return geometry;
+        return mGeometry;
     }
 }
 
