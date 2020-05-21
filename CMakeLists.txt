@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(libSLM)
+project(libSLM VERSION 0.1.0)
 
 # Set c++ to use cx11 as a requirement
 set(CMAKE_CXX_STANDARD 11)
@@ -17,6 +17,8 @@ set(INCLUDE_INSTALL_DIR "${INCLUDE_INSTALL_DIR}/libSLM")
 
 # Generate DLL Pragma for creating shared libraries in Windows
 include (GenerateExportHeader)
+
+add_definitions( -DPROJECT_VERSION=${PROJECT_VERSION} )
 
 option(BUILD_PYTHON "Builds a python extension" ON)
 
@@ -127,6 +129,7 @@ add_subdirectory(Translators)
 if(BUILD_PYTHON)
     set(LIBSLM_PY_SRCS
         Python/module.cpp
+        Python/utils.h
     )
     
     SOURCE_GROUP("Python" FILES ${LIBSLM_PY_SRCS})
