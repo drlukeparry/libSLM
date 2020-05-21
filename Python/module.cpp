@@ -1,6 +1,10 @@
 #include <pybind11/pybind11.h>
+
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
+#include <pybind11/stl_bind.h>
+#include <pybind11/functional.h>
+#include <pybind11/complex.h>
 #include <pybind11/eigen.h>
 
 #include <tuple>
@@ -13,9 +17,14 @@
 #include <Translators/MTT/Reader.h>
 #include <Translators/MTT/Writer.h>
 
+#include "utils.h"
+
 namespace py = pybind11;
 
 using namespace slm;
+
+PYBIND11_MAKE_OPAQUE(std::vector<slm::LayerGeometry::Ptr>)
+PYBIND11_MAKE_OPAQUE(std::vector<slm::BuildStyle::Ptr>)
 
 PYBIND11_MODULE(slm, m) {
 
@@ -27,6 +36,7 @@ PYBIND11_MODULE(slm, m) {
            :toctree: _generate
 
     )pbdoc";
+
 
     py::class_<slm::LayerGeometry, std::shared_ptr<slm::LayerGeometry>> layerGeomPyType(m, "LayerGeometry", py::dynamic_attr());
 
@@ -58,10 +68,39 @@ PYBIND11_MODULE(slm, m) {
         .value("Hatch", slm::LayerGeometry::TYPE::HATCH)
         .export_values();
 
+     slm::bind_my_vector<std::vector<slm::BuildStyle::Ptr>>(m, "VectorBuildStyle");
+     slm::bind_my_vector<std::vector<slm::LayerGeometry::Ptr>>(m, "VectorLayerGeometry");
+
+     py::implicitly_convertible<py::list, std::vector<slm::BuildStyle::Ptr>>();
+     py::implicitly_convertible<py::list, std::vector<slm::LayerGeometry::Ptr>>();
+
+
+#if 0
+    py::class_<std::vector<slm::LayerGeometry::Ptr> >(m, "LayerGeometryVector")
+        .def(py::init<>())
+        .def("clear", &std::vector<LayerGeometry::Ptr>::clear)
+        //.def("append",[](std::vector<LayerGeometry::Ptr> &v, LayerGeometry::Ptr &value) { v.push_back(value); },
+          //          py::keep_alive<2,1>())
+        .def("append", (void (LayerGeomList::*)(const slm::LayerGeometry::Ptr &)) &LayerGeomList::push_back,  py::keep_alive<1, 2>())
+        //.def("append", (void (std::vector<slm::LayerGeometry::Ptr>::*push_back)(const std::vector<slm::LayerGeometry::Ptr> &)(&std::vector<LayerGeometry::Ptr>::push_back))
+        .def("pop_back", &std::vector<LayerGeometry::Ptr>::pop_back)
+        .def("__len__", [](const std::vector<LayerGeometry::Ptr> &v) { return v.size(); })
+        .def("__iter__", [](std::vector<LayerGeometry::Ptr> &v) {
+           return py::make_iterator(v.begin(), v.end());
+        }, py::keep_alive<0, 1>()) /* Keep vector alive while iterator is used */
+        .def("__bool__", &std::vector<LayerGeometry::Ptr>::empty)
+        .def("__contains__",
+                [](const std::vector<LayerGeometry::Ptr> &v, const LayerGeometry::Ptr &x) {
+                    return std::find(v.begin(), v.end(), x) != v.end();
+                },
+                py::arg("x"),
+                "Return true the container contains ``x``"
+        );
+#endif
+
 
     py::class_<slm::Header>(m, "Header", py::dynamic_attr())
         .def(py::init())
-        //.def(py::init(&PySLMHeader::create))
         .def_readwrite("filename", &Header::fileName)
         .def_property("version",  &Header::version, &Header::setVersion)
         .def_readwrite("zUnit",    &Header::zUnit);
@@ -85,7 +124,9 @@ PYBIND11_MODULE(slm, m) {
         .def(py::init())
         .def_property("mid", &Model::getId, &Model::setId)
         .def("__len__", [](const Model &s ) { return s.getBuildStyles().size(); })
-        .def_property("buildStyles", &Model::getBuildStyles, &Model::setBuildStyles)
+        .def_property("buildStyles",py::cpp_function(&slm::Model::buildStylesRef,py::return_value_policy::reference, py::keep_alive<1,0>()),
+                                    py::cpp_function(&slm::Model::setBuildStyles, py::keep_alive<1, 2>()))
+        //.def_property("buildStyles", &Model::getBuildStyles, &Model::setBuildStyles)
         .def_property("topLayerId",  &Model::getTopSlice, &Model::setTopSlice)
         .def_property("name", &Model::getName, &Model::setName);
 
@@ -102,45 +143,16 @@ PYBIND11_MODULE(slm, m) {
         .def("getPointsGeometry", &Layer::getPntsGeometry)
         .def("getHatchGeometry", &Layer::getHatchGeometry)
         .def("getContourGeometry", &Layer::getContourGeometry)
-        .def("appendGeometry", &Layer::appendGeometry)
-        .def_property("geometry", &Layer::geometry, &Layer::setGeometry)
+        .def("appendGeometry", &Layer::appendGeometry,  py::keep_alive<1, 2>())
+       // .def("geom", [](Layer &v) { return &(v.geometry()); }, py::keep_alive<1,0>())
+        .def_property("geometry",py::cpp_function(&Layer::geometryRef,py::return_value_policy::reference, py::keep_alive<1,0>()),
+                                 py::cpp_function(&Layer::setGeometry, py::keep_alive<1, 2>()))
         .def_property("z", &Layer::getZ, &Layer::setZ)
         .def_property("layerId", &Layer::getLayerId, &Layer::setLayerId)
         .def("getGeometry", &Layer::getGeometry, py::arg("scanMode") = slm::ScanMode::NONE);
 
-
-
-
-
-#if 0
-    py::class_<slm::MTT::Reader>(m, "Reader")
-        .def(py::init())
-        .def("setFilePath", &MTT::Reader::setFilePath, py::arg("filename"))
-        .def("getFilePath", &MTT::Reader::getFilePath)
-        .def("parse", &MTT::Reader::parse)
-        .def("getLayerThickness", &MTT::Reader::getLayerThickness)
-        .def("getZUnit", &MTT::Reader::getZUnit)
-        .def_property("layers", &base::Reader::getLayers, nullptr)
-        .def_property("models", &base::Reader::getModels, nullptr);
-
-    py::class_<slm::MTT::Writer>(m, "Writer")
-        .def(py::init())
-        .def(py::init<std::string>())
-        .def("setFilePath", &MTT::Writer::setFilePath)
-        .def("getFilePath", &MTT::Writer::getFilePath)
-        .def("write", &MTT::Writer::write, py::arg("header"), py::arg("models"), py::arg("layers"))
-        .def_property("checksum", &MTT::Writer::getChecksum, nullptr);
-
-#endif
-
-/*
-    m.def("exportMTT", &exportMTT, R"pbdoc(
-        Exports a set of
-    )pbdoc");
-*/
-
-#ifdef VERSION_INFO
-    m.attr("__version__") = VERSION_INFO;
+#ifdef PROJECT_VERSION
+    m.attr("__version__") = "PROJECT_VERSION";
 #else
     m.attr("__version__") = "dev";
 #endif
