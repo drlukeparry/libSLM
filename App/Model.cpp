@@ -1,6 +1,7 @@
 #include <codecvt>
 #include <locale>
 #include <string>
+#include <algorithm>
 
 #include "Model.h"
 
@@ -67,9 +68,39 @@ std::string Model::getNameAsString() const
 
 void Model::clear()
 {
-    this->buildStyles.clear();
+    this->mBuildStyles.clear();
 }
 
+BuildStyle::Ptr Model::getBuildStyleById(const uint64_t bid) const
+{
+    auto result = std::find_if(std::begin(mBuildStyles), std::end(mBuildStyles),
+                             [&](BuildStyle::Ptr bstyle){return bstyle->id == bid;});
+
+    if (result != std::end(mBuildStyles)) {
+        return *result;
+    } else {
+        return BuildStyle::Ptr(nullptr);
+    }
+
+}
+
+int64_t Model::addBuildStyle(BuildStyle::Ptr bstyle)
+{
+    if(!bstyle)
+        return -1;
+
+    auto result = std::find_if(std::begin(mBuildStyles), std::end(mBuildStyles),
+                             [&](BuildStyle::Ptr b){return bstyle->id == b->id;});
+
+    if (result != std::end(mBuildStyles))
+        return -1;
+
+    mBuildStyles.push_back(bstyle);
+
+    return mBuildStyles.size();
+}
+
+#if 0
 std::vector<BuildStyle::Ptr> Model::getBuildStyles() const
 {
     std::vector<BuildStyle::Ptr> bstyles;
@@ -105,3 +136,4 @@ int64_t Model::addBuildStyle(BuildStyle::Ptr bstyle)
 
     return buildStyles.size();
 }
+#endif

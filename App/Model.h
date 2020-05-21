@@ -101,21 +101,25 @@ public:
      uint64_t getId() const {  return id;}
      uint64_t getTopSlice() const { return topSliceNum; }
      std::u16string getName() const { return name; }
-
      std::string getNameAsString() const;
 
 
     /*
-     ** Build Style Getters
+     * Build Style Getters
      */
-     std::vector<BuildStyle::Ptr> getBuildStyles() const; // const{ return this->buildStyles.values(); }
-     BuildStyle::Ptr getBuildStyleById(const uint64_t bid) const;// const { return this->buildStyles.value(bid);}
+
+
+     void setBuildStyles(const std::vector<BuildStyle::Ptr> &bstyles) { mBuildStyles = bstyles; }
+
+     std::vector<BuildStyle::Ptr> getBuildStyles() const { return mBuildStyles; }
+     BuildStyle::Ptr getBuildStyleById(const uint64_t bid) const;
+     std::vector<BuildStyle::Ptr>  & buildStylesRef() { return mBuildStyles; }
 
     /**
      * Setters
      */
     int64_t addBuildStyle(BuildStyle::Ptr bstyle);
-    void setBuildStyles(const BStyleMap &bstyles);
+    //void setBuildStyles(const BStyleMap &bstyles);
 
     void setId(const uint64_t val) { id = val;}
     void setTopSlice(const uint64_t val) { topSliceNum = val;}
@@ -126,7 +130,10 @@ protected:
     uint64_t    id;
     uint64_t    topSliceNum;
     std::u16string   name;
-    BStyleMap buildStyles;
+
+    //BStyleMap buildStyles;
+
+    std::vector<BuildStyle::Ptr> mBuildStyles;
 };
 
 } // End of SLM Namespace

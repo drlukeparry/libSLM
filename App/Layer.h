@@ -152,7 +152,11 @@ public:
     int64_t addHatchGeometry(LayerGeometry::Ptr geom);
     int64_t addPntsGeometry(LayerGeometry::Ptr geom);
 
+
     const std::vector<LayerGeometry::Ptr> & geometry() const { return mGeometry; }
+
+    std::vector<LayerGeometry::Ptr> & geometryRef()  { return mGeometry; }
+
     void setGeometry(const std::vector<LayerGeometry::Ptr> &geoms);
 
     template <class T>

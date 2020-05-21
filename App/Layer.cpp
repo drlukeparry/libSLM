@@ -145,8 +145,6 @@ std::vector<LayerGeometry::Ptr > Layer::getGeometry(ScanMode mode) const
         std::vector<LayerGeometry::Ptr > contour;
         std::vector<LayerGeometry::Ptr > points;
 
-
-
         for(auto it = mGeometry.cbegin(); it != mGeometry.cend(); ++it) {
            if((*it)->getType() == LayerGeometry::PNTS) {
                points.push_back(*it);
