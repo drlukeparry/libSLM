@@ -112,13 +112,14 @@ PYBIND11_MODULE(slm, m) {
         .def_readwrite("laserSpeed",        &BuildStyle::laserSpeed)
         .def_readwrite("laserFocus",        &BuildStyle::laserFocus)
         .def_readwrite("pointDistance",     &BuildStyle::pointDistance)
+        .def_readwrite("pointExposureTime", &BuildStyle::pointExposureTime)
         .def("setStyle", &BuildStyle::setStyle, "Sets the paramters of the buildstyle",
                          py::arg("bid"),
                          py::arg("focus"),
                          py::arg("power"),
                          py::arg("pointExposureTime"),
                          py::arg("pointExposureDistance"),
-                         py::arg("speed") = 0);
+                         py::arg("speed") = 0.0);
 
     py::class_<slm::Model, std::shared_ptr<slm::Model>>(m, "Model", py::dynamic_attr())
         .def(py::init())
@@ -131,7 +132,7 @@ PYBIND11_MODULE(slm, m) {
         .def_property("name", &Model::getName, &Model::setName);
 
     py::enum_<slm::ScanMode>(m, "ScanMode")
-        .value("None", ScanMode::NONE)
+        .value("Default", ScanMode::NONE)
         .value("ContourFirst", ScanMode::CONTOUR_FIRST)
         .value("HatchFirst", ScanMode::HATCH_FIRST)
         .export_values();
