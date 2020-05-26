@@ -25,7 +25,7 @@ libSLM is fundamentally a c++ library for directly interfacing with machine buil
 No strict dependencies are required for compiling libSLM, originally based on the Qt library. This design decision was taken to improve the cross-platform behaviour of the project. Python bindings are generated via `pybind <https://pybind11.readthedocs.io/en/stable/>`_, which is automatically pulled in by as sub-module by calling git clone with `--recursive`. 
 
 
-.. code-block:: bash
+.. code:: bash
     git clone --recursive https://github.com/libSLM
 
 Compiler requirements
@@ -48,7 +48,7 @@ Installation: Python - Compiling from Source
 Just clone this repository and pip install. Note the `--recursive` option which is
 needed for the pybind11 submodule:
 
-.. code-block:: bash
+.. code:: bash
     git clone --recursive https://github.com/libSLM
     pip install ./libSLM
 
@@ -62,5 +62,5 @@ Installation: Python Package
 
 libSLM can be installed from pre-compiled versions in PyPi
 
-.. code-block:: bash
+.. code:: bash
     pip install libSLM
