@@ -20,7 +20,7 @@ include (GenerateExportHeader)
 
 add_definitions( -DPROJECT_VERSION=${PROJECT_VERSION} )
 
-option(BUILD_PYTHON "Builds a python extension" ON)
+option(BUILD_PYTHON "Builds a python extension" OFF)
 
 if(WIN32)
     # Remove Security definitions for the library
@@ -56,6 +56,7 @@ set(CPP_FILESYSTEM
 
 
 if(BUILD_PYTHON)
+    message(STATUS "Building libSLM Python Module")
     add_subdirectory(External/pybind11)
 endif(BUILD_PYTHON)
 
@@ -111,7 +112,8 @@ set(LIBSLM_SRCS
 )
 
 # Add the library
-add_library(SLM STATIC ${LIBSLM_SRCS})
+add_library(SLM SHARED ${LIBSLM_SRCS})
+add_library(SLM_static STATIC ${LIBSLM_SRCS})
 
 GENERATE_EXPORT_HEADER(SLM
              BASE_NAME SLM
@@ -128,8 +130,8 @@ add_subdirectory(Translators)
 
 if(BUILD_PYTHON)
     set(LIBSLM_PY_SRCS
-        Python/module.cpp
-        Python/utils.h
+        python/libSLM/module.cpp
+        python/libSLM/utils.h
     )
     
     SOURCE_GROUP("Python" FILES ${LIBSLM_PY_SRCS})
@@ -137,11 +139,12 @@ if(BUILD_PYTHON)
     pybind11_add_module(slm ${LIBSLM_PY_SRCS})
 
     #add_library(example MODULE main.cpp)
-    target_link_libraries(slm PRIVATE pybind11::module SLM MTT)
+    target_link_libraries(slm PRIVATE pybind11::module SLM_static)
     set_target_properties(slm PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
                                          SUFFIX "${PYTHON_MODULE_EXTENSION}")
 
     install(TARGETS slm DESTINATION lib/libSLM)
+
 
 endif(BUILD_PYTHON)
 

@@ -54,7 +54,7 @@ needed for the pybind11 submodule:
 
 
 With the `setup.py` file included in this example, the `pip install` command will
-invoke CMake and build the pybind11 module as specified in `CMakeLists.txt`.
+invoke CMake and build the pybind11 module as specified in `CMakeLists.txt`. The Cmake flag `BUILD_PYTHON` will be automatically toggled on during the build phase. 
 
 
 Installation: Python Package
