@@ -26,6 +26,7 @@ No strict dependencies are required for compiling libSLM, originally based on th
 
 
 .. code:: bash
+
     git clone --recursive https://github.com/libSLM
 
 Compiler requirements
@@ -49,6 +50,7 @@ Just clone this repository and pip install. Note the `--recursive` option which 
 needed for the pybind11 submodule:
 
 .. code:: bash
+
     git clone --recursive https://github.com/libSLM
     pip install ./libSLM
 
@@ -63,4 +65,5 @@ Installation: Python Package
 libSLM can be installed from pre-compiled versions in PyPi
 
 .. code:: bash
+
     pip install libSLM
