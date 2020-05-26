@@ -1,22 +1,22 @@
-libSLM Library for Selective Laser Melting
-==================================================
+libSLM: A Library for Interfacing with Selective Laser Melting Systems
+========================================================================
 
 
-libSLM is a c++ support library for the translation (reading and writing) of Machine build files commonyl used with commercial Selective Laser Melting (SLM) and DMLS systems. This is a re-write based on previous work to provide a vanilla c++ interface using std::classes, and also generating Python bindings via `pybind <https://pybind11.readthedocs.io/en/stable/>`_.
+libSLM is a c++ support library for the translation (reading and writing) of machine build files commonly used with commercial Selective Laser Melting (SLM) and DMLS systems. Potentially the library could be extended to SLA platforms if required. The library is re-write based on previous implementation to provide a vanilla c++ interface using the *std::library*, and also natively providing the option to generate Python bindings via `pybind <https://pybind11.readthedocs.io/en/stable/>`_. The library does not provide an implementation for generating low-level, specific gcodes used by systems, however, could potentially be implemented as a feature in the future. 
 
 The library is used in conjunction with the `PySLM <https://github.com/drlukeparry/pyslm>`_ project in order to provide a framework for working with SLM systems.
 
-The code does not generate any intermediate G-Code files, but simply imports and exports a collection of layers containing a number of layer geometries containg points, contours and scan vectors. 
+**Note:** The library does not generate the scan vectors used by the machine, rather, merely provides an interface for importing and exporting a collection of layers containing a number of layer geometries containing points, contours and scan vectors. 
 
 Current Features
 #################
 Current importing and exporting capabilities available via libSLM:
 
-* Renishaw (.MTT) File Format
-* DMG Mori - Realizer (.rea) 
-* EOS (.sli) WIP
+* Renishaw (**.MTT**) File Format
+* DMG Mori - Realizer (**.rea**) 
+* EOS (**.sli**) - currently work in progress
 
-Access to these specific translators are currently available on request as pre-compiled modules due to sensitiviy of the proprietary formats. The source code of these translators will be made available for research (non-commercial) purposes via requests at the discretion of the author until prior notice. 
+Access to these specific translators are currently available on request as pre-compiled modules due to sensitivity of working with proprietary formats. The source code of these specific translators used for commercial systems will be made available for research (non-commercial) purposes via requests at the discretion of the author until prior notice. 
 
 Installation
 #################
@@ -28,26 +28,30 @@ No strict dependencies are required for compiling libSLM, originally based on th
 .. code:: bash
 
     git clone --recursive https://github.com/libSLM
+    cmake .
+
 
 Compiler requirements
 **********************
+libSLM was designed to not include many dependencies to improve the compatibility to integrate into existing software - in particular linking to subroutines used in commercial FEA simulation codes. The underlying library is developed to be compatible on both Windows and Unix systems.
 
 **On Unix (Linux, OS X)**
 
 * A compiler (GCC, Clang) with C++11 support
-* CMake >= 2.8.12
+* CMake >= 3.0
 
 **On Windows**
 
-* Visual Studio 2015 (required for all Python versions, see notes below)
-* CMake >= 3.1
+* Visual Studio 2015 (required for all Python versions)
+* CMake >= 3.0
+
+During the build process both dynamic and static libraries are generated. 
 
 
-Installation: Python - Compiling from Source
-*********************************************
+Installation: Python Bindings - Compiling from Source
+********************************************************
 
-Just clone this repository and pip install. Note the `--recursive` option which is
-needed for the pybind11 submodule:
+The python module can be generated using python by simply cloning this repository and then running pip install in your python environment. Note the `--recursive` option which is needed for the pybind11 submodule:
 
 .. code:: bash
 
@@ -55,14 +59,13 @@ needed for the pybind11 submodule:
     pip install ./libSLM
 
 
-With the `setup.py` file included in this example, the `pip install` command will
-invoke CMake and build the pybind11 module as specified in `CMakeLists.txt`. The Cmake flag `BUILD_PYTHON` will be automatically toggled on during the build phase. 
+With the `setup.py` file included in this example, the `pip install` command will invoke CMake to build the pybind11 module as specified in `CMakeLists.txt` and generate a package. A specific version of python is not required provided it is compatible with pybind. During the process The CMake Option flag `BUILD_PYTHON` will be automatically toggled on during the build phase. 
 
 
 Installation: Python Package
 ****************************
 
-libSLM can be installed from pre-compiled versions in PyPi
+The libSLM is made available via PyPi repository and can be obtained using the following command:
 
 .. code:: bash
 
