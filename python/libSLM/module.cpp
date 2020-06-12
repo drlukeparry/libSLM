@@ -103,7 +103,26 @@ PYBIND11_MODULE(slm, m) {
         .def(py::init())
         .def_readwrite("filename", &Header::fileName)
         .def_property("version",  &Header::version, &Header::setVersion)
-        .def_readwrite("zUnit",    &Header::zUnit);
+        .def_readwrite("zUnit",    &Header::zUnit)
+        .def(py::pickle(
+                [](py::object self) { // __getstate__
+                    /* Return a tuple that fully encodes the state of the object */
+                    return py::make_tuple(self.attr("filename"), self.attr("version"), self.attr("zUnit"), self.attr("__dict__"));
+                },
+                 [](const py::tuple &t) {
+                     if (t.size() != 4)
+                         throw std::runtime_error("Invalid state!");
+
+                     auto p = slm::Header();
+                     p.fileName = t[0].cast<std::string>();
+                     p.vMajor = t[1][0].cast<int>();
+                     p.vMinor = t[1][0].cast<int>();
+                     p.zUnit  = t[2].cast<int>();
+
+                     return p;
+
+                }
+            ));
 
     py::class_<slm::BuildStyle, std::shared_ptr<slm::BuildStyle>>(m, "BuildStyle", py::dynamic_attr())
         .def(py::init())
@@ -150,7 +169,26 @@ PYBIND11_MODULE(slm, m) {
                                  py::cpp_function(&Layer::setGeometry, py::keep_alive<1, 2>()))
         .def_property("z", &Layer::getZ, &Layer::setZ)
         .def_property("layerId", &Layer::getLayerId, &Layer::setLayerId)
-        .def("getGeometry", &Layer::getGeometry, py::arg("scanMode") = slm::ScanMode::NONE);
+        .def("getGeometry", &Layer::getGeometry, py::arg("scanMode") = slm::ScanMode::NONE)
+        .def(py::pickle(
+                [](py::object self) { // __getstate__
+                    /* Return a tuple that fully encodes the state of the object */
+                    return py::make_tuple(self.attr("layerId"), self.attr("z"), self.attr("geometry"), self.attr("__dict__"));
+                },
+                 [](const py::tuple &t) {
+                     if (t.size() != 4)
+                         throw std::runtime_error("Invalid state!");
+
+                     auto cpp_state = std::make_shared<Layer>(t[0].cast<int>(), /* Layer Id */
+                                                              t[1].cast<int>()  /* Layer Z */);
+
+
+                     auto geom = t[2].cast<std::vector<LayerGeometry::Ptr>>();
+                     auto py_state = t[3].cast<py::dict>();
+                     return std::make_pair(cpp_state, py_state);
+
+                }
+            ));
 
 #ifdef PROJECT_VERSION
     m.attr("__version__") = "PROJECT_VERSION";
