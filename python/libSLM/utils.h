@@ -39,12 +39,46 @@ py::class_<Vector, holder_type> bind_my_vector(py::handle scope, std::string con
     Class_ cl(scope, name.c_str());
 
     cl.def(py::init<>())
-      .def("clear", &Vector::clear)
+      .def(py::init([](py::iterable it) {
+                auto v = std::unique_ptr<Vector>(new Vector());
+                v->reserve(len_hint(it));
+                for (py::handle h : it)
+                   v->push_back(h.cast<vtype>());
+                return v.release();
+            }))
+      .def(py::init<const Vector &>(), "Copy constructor");
+
+    /* TODO - check if above requires py::keep_alive */
+
+    cl.def(py::self == py::self)
+      .def(py::self != py::self);
+
+    cl.def("clear", &Vector::clear)
       .def("append", (void (Vector::*)(const vtype &)) &Vector::push_back,  py::keep_alive<1, 2>());
 
     cl.def("pop_back", &Vector::pop_back)
       .def("__len__", &Vector::size)
       .def("__bool__", &Vector::empty);
+
+    cl.def("count",
+        [](const Vector &v, const vtype &x) {
+            return std::count(v.begin(), v.end(), x);
+        },
+        py::arg("x"),
+        "Return the number of times ``x`` appears in the list"
+    );
+
+    cl.def("remove", [](Vector &v, const vtype &x) {
+                auto p = std::find(v.begin(), v.end(), x);
+                if (p != v.end())
+                    v.erase(p);
+                else
+                    throw py::value_error();
+            },
+            py::arg("x"),
+            "Remove the first item from the list whose value is x. "
+            "It is an error if there is no such item."
+        );
 
 
     // Iteration methods
@@ -146,6 +180,57 @@ py::class_<Vector, holder_type> bind_my_vector(py::handle scope, std::string con
         },
         "Delete list elements using a slice object"
     );
+
+
+    cl.def("extend",
+       [](Vector &v, const Vector &src) {
+           v.insert(v.end(), src.begin(), src.end());
+       },
+       py::arg("L"),
+       "Extend the list by appending all the items in the given list"
+    );
+
+    cl.def("extend",
+       [](Vector &v, py::iterable it) {
+           const size_t old_size = v.size();
+           v.reserve(old_size + len_hint(it));
+           try {
+               for (py::handle h : it) {
+                   v.push_back(h.cast<vtype>());
+               }
+           } catch (const py::cast_error &) {
+               v.erase(v.begin() + static_cast<typename Vector::difference_type>(old_size), v.end());
+               try {
+                   v.shrink_to_fit();
+               } catch (const std::exception &) {
+                   // Do nothing
+               }
+               throw;
+           }
+       },
+       py::arg("L"),
+       "Extend the list by appending all the items in the given list"
+    );
+
+    cl.def(py::pickle(
+                 [](const Vector &v) { // __getstate__
+                     /* Return a tuple that fully encodes the state of the object */
+                    py::list list;
+                    for(vtype x : v)
+                        list.append(x);
+                     return list;
+
+                 }, [](const py::list &t) {
+
+                    auto v = std::unique_ptr<Vector>(new Vector());
+                    v->reserve(t.size());
+
+                     for(py::handle h : t)
+                        v->push_back(h.cast<vtype>());
+                     return v;
+                }
+             ));
+
 
     return cl;
 }

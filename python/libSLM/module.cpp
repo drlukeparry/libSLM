@@ -1,3 +1,5 @@
+#include <string>
+
 #include <pybind11/pybind11.h>
 
 #include <pybind11/numpy.h>
@@ -44,22 +46,89 @@ PYBIND11_MODULE(slm, m) {
         .def_readwrite("bid", &LayerGeometry::bid)
         .def_readwrite("mid", &LayerGeometry::mid)
         .def_readwrite("coords", &LayerGeometry::coords)
-        .def_property("type", &LayerGeometry::getType, nullptr);
+        .def_property("type", &LayerGeometry::getType, nullptr)
+        .def(py::pickle(
+                [](py::object self) { // __getstate__
+                    /* Return a tuple that fully encodes the state of the object */
+                    return py::make_tuple(self.attr("bid"), self.attr("mid"), self.attr("coords"),  self.attr("type"), self.attr("__dict__"));
+                }, [](const py::tuple &t) {
+                    if (t.size() != 5)
+                        throw std::runtime_error("Invalid state!");
+
+                    auto p = std::make_shared<LayerGeometry>();
+                    p->bid = t[0].cast<int>();
+                    p->mid = t[1].cast<int>();
+                    p->coords = t[2].cast<Eigen::MatrixXf>();
+                    auto py_state = t[3].cast<py::dict>();
+                    return std::make_pair(p, py_state);
+
+               }
+            ));
 
     py::class_<slm::ContourGeometry, slm::LayerGeometry, std::shared_ptr<slm::ContourGeometry>>(m, "ContourGeometry", py::dynamic_attr())
         .def(py::init())
         .def(py::init<uint32_t, uint32_t>(), py::arg("mid"), py::arg("bid"))
-        .def_property("type", &ContourGeometry::getType, nullptr);
+        .def_property("type", &ContourGeometry::getType, nullptr)
+        .def(py::pickle(
+                [](py::object self) { // __getstate__
+                    /* Return a tuple that fully encodes the state of the object */
+                    return py::make_tuple(self.attr("bid"), self.attr("mid"), self.attr("coords"), self.attr("__dict__"));
+                }, [](const py::tuple &t) {
+                    if (t.size() != 4)
+                        throw std::runtime_error("Invalid state!");
+
+                    auto p = std::make_shared<slm::ContourGeometry>();
+                    p->bid = t[0].cast<int>();
+                    p->mid = t[1].cast<int>();
+                    p->coords = t[2].cast<Eigen::MatrixXf>();
+                    auto py_state = t[3].cast<py::dict>();
+                    return std::make_pair(p, py_state);
+
+               }
+            ));
 
     py::class_<slm::HatchGeometry, slm::LayerGeometry, std::shared_ptr<HatchGeometry>>(m, "HatchGeometry", py::dynamic_attr())
          .def(py::init())
          .def(py::init<uint32_t, uint32_t>(), py::arg("mid"), py::arg("bid"))
-         .def_property("type", &HatchGeometry::getType, nullptr);
+         .def_property("type", &HatchGeometry::getType, nullptr)
+         .def(py::pickle(
+                [](py::object self) { // __getstate__
+                    /* Return a tuple that fully encodes the state of the object */
+                    return py::make_tuple(self.attr("bid"), self.attr("mid"), self.attr("coords"), self.attr("__dict__"));
+                }, [](const py::tuple &t) {
+                    if (t.size() != 4)
+                        throw std::runtime_error("Invalid state!");
+
+                    auto p = std::make_shared<slm::HatchGeometry>();
+                    p->bid = t[0].cast<int>();
+                    p->mid = t[1].cast<int>();
+                    p->coords = t[2].cast<Eigen::MatrixXf>();
+                    auto py_state = t[3].cast<py::dict>();
+                    return std::make_pair(p, py_state);
+
+               }
+            ));
 
     py::class_<slm::PntsGeometry, slm::LayerGeometry, std::shared_ptr<slm::PntsGeometry>>(m, "PointsGeometry", py::dynamic_attr())
          .def(py::init())
          .def(py::init<uint32_t, uint32_t>(), py::arg("mid"), py::arg("bid"))
-         .def_property("type", &PntsGeometry::getType, nullptr);
+         .def_property("type", &PntsGeometry::getType, nullptr)
+         .def(py::pickle(
+                   [](py::object self) { // __getstate__
+                       /* Return a tuple that fully encodes the state of the object */
+                       return py::make_tuple(self.attr("bid"), self.attr("mid"), self.attr("coords"), self.attr("__dict__"));
+                   }, [](const py::tuple &t) {
+                       if (t.size() != 4)
+                           throw std::runtime_error("Invalid state!");
+
+                       auto p = std::make_shared<slm::PntsGeometry>();
+                       p->bid = t[0].cast<int>();
+                       p->mid = t[1].cast<int>();
+                       p->coords = t[2].cast<Eigen::MatrixXf>();
+                       auto py_state = t[3].cast<py::dict>();
+                       return std::make_pair(p, py_state);
+                  }
+               ));
 
     py::enum_<slm::LayerGeometry::TYPE>(layerGeomPyType, "LayerGeometryType")
         .value("Invalid", slm::LayerGeometry::TYPE::INVALID)
@@ -106,7 +175,6 @@ PYBIND11_MODULE(slm, m) {
         .def_readwrite("zUnit",    &Header::zUnit)
         .def(py::pickle(
                 [](py::object self) { // __getstate__
-                    /* Return a tuple that fully encodes the state of the object */
                     return py::make_tuple(self.attr("filename"), self.attr("version"), self.attr("zUnit"), self.attr("__dict__"));
                 },
                  [](const py::tuple &t) {
@@ -115,8 +183,9 @@ PYBIND11_MODULE(slm, m) {
 
                      auto p = slm::Header();
                      p.fileName = t[0].cast<std::string>();
-                     p.vMajor = t[1][0].cast<int>();
-                     p.vMinor = t[1][0].cast<int>();
+                     py::tuple version = t[1].cast<py::tuple>();
+                     p.vMajor = version[0].cast<int>();
+                     p.vMinor = version[1].cast<int>();
                      p.zUnit  = t[2].cast<int>();
 
                      return p;
@@ -138,7 +207,33 @@ PYBIND11_MODULE(slm, m) {
                          py::arg("power"),
                          py::arg("pointExposureTime"),
                          py::arg("pointExposureDistance"),
-                         py::arg("speed") = 0.0);
+                         py::arg("speed") = 0.0)
+        .def(py::pickle(
+                [](py::object self) { // __getstate__
+                    /* Return a tuple that fully encodes the state of the object */
+                    return py::make_tuple(self.attr("bid"),
+                                          self.attr("laserPower"), self.attr("laserSpeed"), self.attr("laserFocus"),
+                                          self.attr("pointDistance"), self.attr("pointExposureTime"),
+                                          self.attr("__dict__"));
+                },
+                 [](const py::tuple &t) {
+                     if (t.size() != 7)
+                         throw std::runtime_error("Invalid state!");
+
+                     auto p = std::make_shared<BuildStyle>();
+
+                     p->id = t[0].cast<int>();
+                     p->laserPower = t[1].cast<float>();
+                     p->laserSpeed = t[2].cast<float>();
+                     p->laserFocus = t[3].cast<float>();
+                     p->pointDistance = t[4].cast<int>();
+                     p->pointExposureTime = t[5].cast<int>();
+
+                     auto py_state = t[6].cast<py::dict>();
+                     return std::make_pair(p, py_state);
+
+                }
+            ));
 
     py::class_<slm::Model, std::shared_ptr<slm::Model>>(m, "Model", py::dynamic_attr())
         .def(py::init())
@@ -148,7 +243,31 @@ PYBIND11_MODULE(slm, m) {
                                     py::cpp_function(&slm::Model::setBuildStyles, py::keep_alive<1, 2>()))
         //.def_property("buildStyles", &Model::getBuildStyles, &Model::setBuildStyles)
         .def_property("topLayerId",  &Model::getTopSlice, &Model::setTopSlice)
-        .def_property("name", &Model::getName, &Model::setName);
+        .def_property("name", &Model::getName, &Model::setName)
+        .def(py::pickle(
+                [](py::object self) { // __getstate__
+                    /* Return a tuple that fully encodes the state of the object */
+                    return py::make_tuple(self.attr("mid"),
+                                          self.attr("name"),
+                                          self.attr("topLayerId"),
+                                          self.attr("buildStyles"),
+                                          self.attr("__dict__"));
+                },
+                 [](const py::tuple &t) {
+                     if (t.size() != 5)
+                         throw std::runtime_error("Invalid state!");
+
+                     auto p = std::make_shared<Model>(t[0].cast<int>(), /* Mid */
+                                                      t[2].cast<int>() /* Top Layer Id */);
+
+                     p->setName(t[1].cast<std::u16string>());
+                     p->setBuildStyles(t[3].cast<std::vector<BuildStyle::Ptr>>());
+
+                     auto py_state = t[4].cast<py::dict>();
+                     return std::make_pair(p, py_state);
+
+                }
+            ));
 
     py::enum_<slm::ScanMode>(m, "ScanMode")
         .value("Default", ScanMode::NONE)
@@ -179,13 +298,13 @@ PYBIND11_MODULE(slm, m) {
                      if (t.size() != 4)
                          throw std::runtime_error("Invalid state!");
 
-                     auto cpp_state = std::make_shared<Layer>(t[0].cast<int>(), /* Layer Id */
+                     auto p = std::make_shared<Layer>(t[0].cast<int>(), /* Layer Id */
                                                               t[1].cast<int>()  /* Layer Z */);
 
 
-                     auto geom = t[2].cast<std::vector<LayerGeometry::Ptr>>();
+                     p->setGeometry(t[2].cast<std::vector<LayerGeometry::Ptr>>());
                      auto py_state = t[3].cast<py::dict>();
-                     return std::make_pair(cpp_state, py_state);
+                     return std::make_pair(p, py_state);
 
                 }
             ));
