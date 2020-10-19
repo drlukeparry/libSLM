@@ -20,12 +20,12 @@ Current Features
 #################
 Current importing and exporting capabilities available via libSLM:
 
-* Renishaw (**.MTT**) File Format
+* Renishaw (**.mtt**) File Format
 * DMG Mori - Realizer (**.rea**)
 * Fockele and Schwarze File Format  (**.f&s**) - currently work in progress
 * EOS (**.sli**) - currently work in progress
 * SLM Solutions (**.slm**) - currently work in progress
-* CLI (**.ciCommon Layer Interface)
+* CLI (**.cli** - Common Layer Interface)
 
 Access to these specific translators are currently available on request as pre-compiled modules due to sensitivity of
 working with proprietary formats. The source code of these specific translators used for commercial systems will be
@@ -108,7 +108,9 @@ commercial software.
 Note extra meta-data specific to the SLM system may not necessarily be captured during the translation, as there is no
 generic method for storing this information. Additional output may be generated during the parsing phase.
 
+
 .. code:: python
+
     """
     Import the MTT (Renishaw SLM) Exporter
     """
@@ -137,7 +139,7 @@ Writing Machine Build Files
 *******************************
 The usage in python requires building up a compatible definition of structures defining the laser parameters used across
 the build and the layer scan geometry. These are thoroughly described in the PySLM documentation -
-see  `examples/example_exporting.py https://github.com/drlukeparry/pyslm/blob/master/examples/example_exporting.py>`_.
+see  `examples/example_exporting.py <https://github.com/drlukeparry/pyslm/blob/master/examples/example_exporting.py>`_.
 There are some subtle difference between SLM systems, which require to be specified differently within the system,
 in particular, the laser scan paramters used.
 
@@ -145,6 +147,7 @@ Once the compatible datastructures have been created, the user needs to simply i
 their chosen SLM system and write to the file.
 
 .. code:: python
+
     """
     Import the MTT (Renishaw SLM) Exporter
     """
