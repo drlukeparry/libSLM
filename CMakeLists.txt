@@ -85,6 +85,7 @@ set(APP_H_SRCS
     App/Reader.h
 #    App/Slm.h
     App/Writer.h
+    App/Utils.h
 )
 
 
