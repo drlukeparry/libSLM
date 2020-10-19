@@ -76,7 +76,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name='libSLM',
-    version='0.1.0',
+    version='0.2.0',
     author='Luke Parry',
     author_email='dev@lukeparry.uk',
     url='https://github.com/drlukeparry/libslm',
@@ -84,7 +84,8 @@ setup(
     long_description_content_type = 'text/x-rst',
     description='libSLM is a python library for reading and writing to common machine build files used by commerical Additive Manufacturing systems',
     ext_modules=[CMakeExtension('libSLM.slm', 'slm'), 
-                 CMakeExtension('libSLM.translators.mtt', 'mtt')],
+                 CMakeExtension('libSLM.translators.mtt', 'mtt'),
+                 CMakeExtension('libSLM.translators.slmsol', 'slmsol')],
     cmdclass=dict(build_ext=CMakeBuild),
     packages = ['libSLM', 'libSLM.translators'],
     package_dir={'': 'python'},
