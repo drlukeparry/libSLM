@@ -31,6 +31,10 @@ public:
                   uint64_t pDistTime,
                   float speed = 0.f);
 
+    void setName(const std::u16string &str) { name = str;}
+    void setDescription(const std::u16string &str) { description = str;}
+
+
 public:
     uint64_t  id;
 
@@ -40,6 +44,9 @@ public:
 
     uint64_t  pointDistance;
     uint64_t  pointExposureTime;
+
+    std::u16string   name;
+    std::u16string   description;
 };
 
 class SLM_EXPORT Model
@@ -100,8 +107,15 @@ public:
      */
      uint64_t getId() const {  return id;}
      uint64_t getTopSlice() const { return topSliceNum; }
+
      std::u16string getName() const { return name; }
      std::string getNameAsString() const;
+
+     std::u16string getBuildStyleName() const { return name; }
+     std::string getBuildStyleNameAsString() const;
+
+     std::u16string getBuildStyleDescription() const { return name; }
+     std::string getBuildStlyeDescriptionAsString() const;
 
 
     /*
@@ -124,13 +138,15 @@ public:
     void setId(const uint64_t val) { id = val;}
     void setTopSlice(const uint64_t val) { topSliceNum = val;}
     void setName(const std::u16string &str) { name = str;}
-
+    void setBuildStlyeName(const std::u16string &str) { buildStyleName = str;}
+    void setBuildStlyeDescription(const std::u16string &str) { buildStyleDescription = str;}
 
 protected:
     uint64_t    id;
     uint64_t    topSliceNum;
     std::u16string   name;
-
+    std::u16string   buildStyleName;
+    std::u16string   buildStyleDescription;
     //BStyleMap buildStyles;
 
     std::vector<BuildStyle::Ptr> mBuildStyles;

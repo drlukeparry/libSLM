@@ -196,6 +196,8 @@ PYBIND11_MODULE(slm, m) {
     py::class_<slm::BuildStyle, std::shared_ptr<slm::BuildStyle>>(m, "BuildStyle", py::dynamic_attr())
         .def(py::init())
         .def_readwrite("bid",               &BuildStyle::id)
+        .def_readwrite("name",              &BuildStyle::name)
+        .def_readwrite("description",       &BuildStyle::description)
         .def_readwrite("laserPower",        &BuildStyle::laserPower)
         .def_readwrite("laserSpeed",        &BuildStyle::laserSpeed)
         .def_readwrite("laserFocus",        &BuildStyle::laserFocus)
@@ -214,6 +216,7 @@ PYBIND11_MODULE(slm, m) {
                     return py::make_tuple(self.attr("bid"),
                                           self.attr("laserPower"), self.attr("laserSpeed"), self.attr("laserFocus"),
                                           self.attr("pointDistance"), self.attr("pointExposureTime"),
+                                          self.attr("name"), self.attr("description"),
                                           self.attr("__dict__"));
                 },
                  [](const py::tuple &t) {
@@ -228,8 +231,10 @@ PYBIND11_MODULE(slm, m) {
                      p->laserFocus = t[3].cast<float>();
                      p->pointDistance = t[4].cast<int>();
                      p->pointExposureTime = t[5].cast<int>();
+                     p->name = t[6].cast<std::u16string>();
+                     p->description = t[7].cast<std::u16string>();
 
-                     auto py_state = t[6].cast<py::dict>();
+                     auto py_state = t[8].cast<py::dict>();
                      return std::make_pair(p, py_state);
 
                 }
@@ -244,11 +249,15 @@ PYBIND11_MODULE(slm, m) {
         //.def_property("buildStyles", &Model::getBuildStyles, &Model::setBuildStyles)
         .def_property("topLayerId",  &Model::getTopSlice, &Model::setTopSlice)
         .def_property("name", &Model::getName, &Model::setName)
+        .def_property("buildStyleName", &Model::getBuildStyleName, &Model::setBuildStlyeName)
+        .def_property("buildStyleDescription", &Model::getBuildStyleDescription, &Model::setBuildStlyeDescription)
         .def(py::pickle(
                 [](py::object self) { // __getstate__
                     /* Return a tuple that fully encodes the state of the object */
                     return py::make_tuple(self.attr("mid"),
                                           self.attr("name"),
+                                          self.attr("buildStyleName"),
+                                          self.attr("buildStyleDescription"),
                                           self.attr("topLayerId"),
                                           self.attr("buildStyles"),
                                           self.attr("__dict__"));
@@ -258,12 +267,14 @@ PYBIND11_MODULE(slm, m) {
                          throw std::runtime_error("Invalid state!");
 
                      auto p = std::make_shared<Model>(t[0].cast<int>(), /* Mid */
-                                                      t[2].cast<int>() /* Top Layer Id */);
+                                                      t[4].cast<int>() /* Top Layer Id */);
 
                      p->setName(t[1].cast<std::u16string>());
-                     p->setBuildStyles(t[3].cast<std::vector<BuildStyle::Ptr>>());
+                     p->setBuildStlyeName(t[2].cast<std::u16string>());
+                     p->setBuildStlyeDescription(t[3].cast<std::u16string>());
+                     p->setBuildStyles(t[5].cast<std::vector<BuildStyle::Ptr>>());
 
-                     auto py_state = t[4].cast<py::dict>();
+                     auto py_state = t[6].cast<py::dict>();
                      return std::make_pair(p, py_state);
 
                 }
