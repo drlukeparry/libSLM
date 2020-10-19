@@ -2,27 +2,44 @@ libSLM: A Library for Interfacing with Selective Laser Melting Systems
 ========================================================================
 
 
-libSLM is a c++ support library for the translation (reading and writing) of machine build files commonly used with commercial Selective Laser Melting (SLM) and DMLS systems. Potentially the library could be extended to SLA platforms if required. The library is re-write based on previous implementation to provide a vanilla c++ interface using the *std::library*, and also natively providing the option to generate Python bindings via `pybind <https://pybind11.readthedocs.io/en/stable/>`_. The library does not provide an implementation for generating low-level, specific gcodes used by systems, however, could potentially be implemented as a feature in the future. 
+libSLM is a c++ support library for the translation (reading and writing) of machine build files commonly used with
+commercial Selective Laser Melting (SLM) and DMLS systems. Potentially the library could be extended to SLA platforms
+if required. The library is re-write based on previous implementation to provide a vanilla c++ interface using the
+*std::library*, and also natively providing the option to generate Python bindings
+via `pybind <https://pybind11.readthedocs.io/en/stable/>`_. The library does not provide an implementation for generating
+low-level, specific gcodes used by systems, however, could potentially be implemented as a feature in the future.
 
-The library is used in conjunction with the `PySLM <https://github.com/drlukeparry/pyslm>`_ project in order to provide a framework for working with SLM systems.
+The library is used in conjunction with the `PySLM <https://github.com/drlukeparry/pyslm>`_ project in order to provide
+a framework for working with SLM systems.
 
-**Note:** The library does not generate the scan vectors used by the machine, rather, merely provides an interface for importing and exporting a collection of layers containing a number of layer geometries containing points, contours and scan vectors. 
+**Note:** The library does not generate the scan vectors used by the machine, rather, merely provides an interface for
+importing and exporting a collection of layers containing a number of layer geometries containing points, contours and
+scan vectors.
 
 Current Features
 #################
 Current importing and exporting capabilities available via libSLM:
 
 * Renishaw (**.MTT**) File Format
-* DMG Mori - Realizer (**.rea**) 
+* DMG Mori - Realizer (**.rea**)
+* Fockele and Schwarze File Format  (**.f&s**) - currently work in progress
 * EOS (**.sli**) - currently work in progress
+* SLM Solutions (**.slm**) - currently work in progress
+* CLI (**.ciCommon Layer Interface)
 
-Access to these specific translators are currently available on request as pre-compiled modules due to sensitivity of working with proprietary formats. The source code of these specific translators used for commercial systems will be made available for research (non-commercial) purposes via requests at the discretion of the author until prior notice. 
+Access to these specific translators are currently available on request as pre-compiled modules due to sensitivity of
+working with proprietary formats. The source code of these specific translators used for commercial systems will be
+made available for research (non-commercial) purposes via requests at the discretion of the author until prior notice.
 
 Installation
 #################
-libSLM is fundamentally a c++ library for directly interfacing with machine build files used in commercial SLM systems and also for interpreting files for development and research purposes. 
+libSLM is fundamentally a c++ library for directly interfacing with machine build files used in commercial SLM systems
+and also for interpreting files for development and research purposes.
 
-No strict dependencies are required for compiling libSLM, originally based on the Qt library. This design decision was taken to improve the cross-platform behaviour of the project. Python bindings are generated via `pybind <https://pybind11.readthedocs.io/en/stable/>`_, which is automatically pulled in by as sub-module by calling git clone with `--recursive`. 
+No strict dependencies are required for compiling libSLM, originally based on the Qt library. This design decision was
+taken to improve the cross-platform behaviour of the project. Python bindings are generated via
+`pybind <https://pybind11.readthedocs.io/en/stable/>`_, which is automatically pulled in by as sub-module by calling
+`git clone with `--recursive`.
 
 
 .. code:: bash
@@ -31,9 +48,11 @@ No strict dependencies are required for compiling libSLM, originally based on th
     cmake .
 
 
-Compiler requirements
+Compiler Requirements
 **********************
-libSLM was designed to not include many dependencies to improve the compatibility to integrate into existing software - in particular linking to subroutines used in commercial FEA simulation codes. The underlying library is developed to be compatible on both Windows and Unix systems.
+libSLM was designed to not include many dependencies to improve the compatibility to integrate into existing software
+- in particular linking to subroutines used in commercial FEA simulation codes. The underlying library is developed
+to be compatible on both Windows and Unix systems.
 
 **On Unix (Linux, OS X)**
 
@@ -51,7 +70,8 @@ During the build process both dynamic and static libraries are generated.
 Installation: Python Bindings - Compiling from Source
 ********************************************************
 
-The python module can be generated using python by simply cloning this repository and then running pip install in your python environment. Note the `--recursive` option which is needed for the pybind11 submodule:
+The python module can be generated using python by simply cloning this repository and then running pip install
+in your python environment. Note the `--recursive` option which is needed for the pybind11 submodule:
 
 .. code:: bash
 
@@ -59,7 +79,10 @@ The python module can be generated using python by simply cloning this repositor
     pip install ./libSLM
 
 
-With the `setup.py` file included in this example, the `pip install` command will invoke CMake to build the pybind11 module as specified in `CMakeLists.txt` and generate a package. A specific version of python is not required provided it is compatible with pybind. During the process The CMake Option flag `BUILD_PYTHON` will be automatically toggled on during the build phase. 
+With the `setup.py` file included in this example, the `pip install` command will invoke CMake to build the pybind11
+module as specified in `CMakeLists.txt` and generate a package. A specific version of python is not required provided
+it is compatible with pybind. During the process The CMake Option flag `BUILD_PYTHON` will be automatically toggled on
+during the build phase.
 
 
 Installation: Python Package
@@ -70,3 +93,64 @@ The libSLM is made available via PyPi repository and can be obtained using the f
 .. code:: bash
 
     pip install libSLM
+
+Usage: Python
+#################
+
+Reading Machine Build Files
+******************************
+
+The machine build files that are generated by other commercial pre-processing software or via libSLM, may be imported
+into a data structure which is compatible with PySLM. This can be very easily used for visualising scan vectors and the
+overall build or for performing analysis (e.g. build-time and cost analysis) of the machine build files generated with
+commercial software.
+
+Note extra meta-data specific to the SLM system may not necessarily be captured during the translation, as there is no
+generic method for storing this information. Additional output may be generated during the parsing phase.
+
+.. code:: python
+    """
+    Import the MTT (Renishaw SLM) Exporter
+    """
+    from libSLM import mtt
+
+    "Create the initial object"
+    mttReader = mtt.Reader()
+    mttReader.setFilePath("build.mtt")
+
+    # Parse / Read the Machine Build File
+    filePath = reader.getFilePath()
+    mttReader.parse()
+
+    # Access the data structures accordingly
+    buildFileModels = reader.models
+    buildFileLayers = layers
+
+    # Layer Thickness currently for the file
+    layerThicknessMicrons = reader.getZUnit()
+    layerThickness = reader.getLayerThickness()
+
+
+All the translators share a similar structure with a few differences such as the definition of layer thickness.
+
+Writing Machine Build Files
+*******************************
+The usage in python requires building up a compatible definition of structures defining the laser parameters used across
+the build and the layer scan geometry. These are thoroughly described in the PySLM documentation -
+see  `examples/example_exporting.py https://github.com/drlukeparry/pyslm/blob/master/examples/example_exporting.py>`_.
+There are some subtle difference between SLM systems, which require to be specified differently within the system,
+in particular, the laser scan paramters used.
+
+Once the compatible datastructures have been created, the user needs to simply import the translator compatible with
+their chosen SLM system and write to the file.
+
+.. code:: python
+    """
+    Import the MTT (Renishaw SLM) Exporter
+    """
+    from libSLM import mtt
+
+    "Create the initial object"
+    mttWriter = mtt.Writer()
+    mttWriter.setFilePath("build.mtt")
+    mttWriter.write(header, models, layers)
