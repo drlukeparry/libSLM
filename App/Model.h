@@ -29,7 +29,9 @@ public:
                   float power,
                   uint64_t pExpTime,
                   uint64_t pDistTime,
-                  float speed = 0.f);
+                  float speed = 0.f,
+                  uint64_t laserId = 1,
+                  uint64_t laserMode = 1);
 
     void setName(const std::u16string &str) { name = str;}
     void setDescription(const std::u16string &str) { description = str;}
@@ -37,6 +39,9 @@ public:
 
 public:
     uint64_t  id;
+    uint64_t  laserId;
+    uint64_t  laserMode;
+
 
     float   laserPower;
     float   laserFocus;
@@ -111,10 +116,10 @@ public:
      std::u16string getName() const { return name; }
      std::string getNameAsString() const;
 
-     std::u16string getBuildStyleName() const { return name; }
+     std::u16string getBuildStyleName() const { return buildStyleName; }
      std::string getBuildStyleNameAsString() const;
 
-     std::u16string getBuildStyleDescription() const { return name; }
+     std::u16string getBuildStyleDescription() const { return buildStyleDescription; }
      std::string getBuildStlyeDescriptionAsString() const;
 
 
