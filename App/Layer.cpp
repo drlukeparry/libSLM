@@ -176,5 +176,7 @@ std::vector<LayerGeometry::Ptr > Layer::getGeometry(ScanMode mode) const
 
 namespace slm {
 
-
+template LayerGeometryT<LayerGeometry::HATCH>;
+template LayerGeometryT<LayerGeometry::POLYGON>;
+template LayerGeometryT<LayerGeometry::PNTS>;
 }

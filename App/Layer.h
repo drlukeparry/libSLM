@@ -40,11 +40,6 @@ public:
 
     Eigen::MatrixXf coords;
 
-#if 0
-    uint32_t mid() const { return mid; }
-    uint32_t bid() const { return bid; }
-#endif
-
 protected:
     uint32_t modelId = 0;
     uint32_t buildId = 0;
