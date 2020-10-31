@@ -203,19 +203,24 @@ PYBIND11_MODULE(slm, m) {
         .def_readwrite("laserFocus",        &BuildStyle::laserFocus)
         .def_readwrite("pointDistance",     &BuildStyle::pointDistance)
         .def_readwrite("pointExposureTime", &BuildStyle::pointExposureTime)
+        .def_readwrite("laserId", &BuildStyle::laserId)
+        .def_readwrite("laserMode", &BuildStyle::laserMode)
         .def("setStyle", &BuildStyle::setStyle, "Sets the paramters of the buildstyle",
                          py::arg("bid"),
                          py::arg("focus"),
                          py::arg("power"),
                          py::arg("pointExposureTime"),
                          py::arg("pointExposureDistance"),
-                         py::arg("speed") = 0.0)
+                         py::arg("speed") = 0.0,
+                         py::arg("laserId") = 1,
+                         py::arg("laserMode") = 1)
         .def(py::pickle(
                 [](py::object self) { // __getstate__
                     /* Return a tuple that fully encodes the state of the object */
                     return py::make_tuple(self.attr("bid"),
                                           self.attr("laserPower"), self.attr("laserSpeed"), self.attr("laserFocus"),
                                           self.attr("pointDistance"), self.attr("pointExposureTime"),
+                                          self.attr("laserId"), self.attr("laserMode"),
                                           self.attr("name"), self.attr("description"),
                                           self.attr("__dict__"));
                 },
@@ -231,10 +236,12 @@ PYBIND11_MODULE(slm, m) {
                      p->laserFocus = t[3].cast<float>();
                      p->pointDistance = t[4].cast<int>();
                      p->pointExposureTime = t[5].cast<int>();
-                     p->name = t[6].cast<std::u16string>();
-                     p->description = t[7].cast<std::u16string>();
+                     p->laserId = t[6].cast<int>();
+                     p->laserMode = t[7].cast<int>();
+                     p->name = t[8].cast<std::u16string>();
+                     p->description = t[9].cast<std::u16string>();
 
-                     auto py_state = t[8].cast<py::dict>();
+                     auto py_state = t[10].cast<py::dict>();
                      return std::make_pair(p, py_state);
 
                 }
