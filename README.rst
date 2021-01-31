@@ -20,11 +20,11 @@ Current Features
 #################
 Current importing and exporting capabilities available via libSLM:
 
-* Renishaw (**.mtt**) File Format
+* Renishaw (**.mtt**) (Currently working with QuantAM 5.3)
 * DMG Mori - Realizer (**.rea**)
-* Fockele and Schwarze File Format  (**.f&s**) - currently work in progress
+* Fockele and Schwarze File Format  (**.f&s**) - Currently work in progress
 * EOS (**.sli**) - currently work in progress
-* SLM Solutions (**.slm**) - currently work in progress
+* SLM Solutions (**.slm**) -Currently work in progress
 * CLI (**.cli** - Common Layer Interface)
 
 Access to these specific translators are currently available on request as pre-compiled modules due to sensitivity of
@@ -71,7 +71,8 @@ Installation: Python Bindings - Compiling from Source
 ********************************************************
 
 The python module can be generated using python by simply cloning this repository and then running pip install
-in your python environment. Note the `--recursive` option which is needed for the pybind11 submodule:
+in your python environment. Note the `--recursive` option which is needed for the `pybind11`, `eigen`, and `filesystem`
+submodule:
 
 .. code:: bash
 
@@ -143,7 +144,7 @@ see  `examples/example_exporting.py <https://github.com/drlukeparry/pyslm/blob/m
 There are some subtle difference between SLM systems, which require to be specified differently within the system,
 in particular, the laser scan paramters used.
 
-Once the compatible datastructures have been created, the user needs to simply import the translator compatible with
+Once the compatible data structures have been created, the user needs to simply import the translator compatible with
 their chosen SLM system and write to the file.
 
 .. code:: python
