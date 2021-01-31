@@ -17,7 +17,9 @@ BuildStyle::BuildStyle() : id(0),
                            pointDistance(0),
                            pointExposureTime(0),
                            laserId(1),
-                           laserMode(1)
+                           laserMode(1),
+                           jumpSpeed(0),
+                           jumpDelay(0)
 
 {
 
@@ -35,7 +37,7 @@ void BuildStyle::setStyle(uint64_t bid,
               uint64_t pDistTime,
               float speed,
               uint64_t lId,
-              uint64_t lMode)
+              LaserMode lMode)
 {
     // Convenience function
     id = bid;
@@ -55,8 +57,8 @@ Model::Model() : id(0),
 {
 }
 
-Model::Model(uint64_t mid, uint64_t sliceNum) : id(mid),
-                                                topSliceNum(sliceNum)
+Model::Model(uint64_t mid, uint64_t topSliceNum) : id(mid),
+                                                   topSliceNum(topSliceNum)
 {
 }
 

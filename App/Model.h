@@ -12,6 +12,11 @@
 namespace slm
 {
 
+enum LaserMode {
+    CW     = 0,
+    PULSE  = 1
+};
+
 class SLM_EXPORT BuildStyle
 {
     // Model can access protected data/methods
@@ -31,7 +36,7 @@ public:
                   uint64_t pDistTime,
                   float speed = 0.f,
                   uint64_t laserId = 1,
-                  uint64_t laserMode = 1);
+                  LaserMode laserMode = LaserMode::PULSE);
 
     void setName(const std::u16string &str) { name = str;}
     void setDescription(const std::u16string &str) { description = str;}
@@ -49,6 +54,8 @@ public:
 
     uint64_t  pointDistance;
     uint64_t  pointExposureTime;
+    uint64_t  jumpSpeed;
+    uint64_t  jumpDelay;
 
     std::u16string   name;
     std::u16string   description;
@@ -58,7 +65,7 @@ class SLM_EXPORT Model
 {
 public:
     Model();
-    Model(uint64_t mid, uint64_t sliceNum);
+    Model(uint64_t mid, uint64_t topSliceNum);
     ~Model();
 
 public:
@@ -89,20 +96,6 @@ public:
         CoreContourHatchOverhang     = 20, /** HollowCore Konturversatz - Overhang */
         HollowShell1ContourHatchOverhang = 21, /** HollowShell1  - Overhang */
         HollowShell2ContourHatchOverhang = 22, /** HollowShell2 Konturversatz - Overhang */
-        /** Reserved for future use */
-        idReserved23 = 23,
-        idReserved24 = 24,
-        idReserved25 = 25,
-        idReserved26 = 26,
-        idReserved27 = 27,
-        idReserved28 = 28,
-        idReserved29 = 29,
-        idReserved30 = 30,
-        idReserved31 = 31,
-        idReserved32 = 32,
-        /** Max enum value (all ID’s are smaller than this)
-        * WILL BE REMOVED IN FUTURE VERSION */
-        MAX = 33
     };
 
     void clear();
@@ -126,8 +119,6 @@ public:
     /*
      * Build Style Getters
      */
-
-
      void setBuildStyles(const std::vector<BuildStyle::Ptr> &bstyles) { mBuildStyles = bstyles; }
 
      std::vector<BuildStyle::Ptr> getBuildStyles() const { return mBuildStyles; }

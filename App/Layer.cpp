@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <cassert>
 #include <algorithm>
 #include <exception>
 
@@ -21,12 +21,16 @@ LayerGeometry::~LayerGeometry()
 }
 
 Layer::Layer() : lid(0),
-                 z(0)
+                 z(0),
+                 mLayerPos(0),
+                 mIsLoaded(false)
 {
 }
 
 Layer::Layer(uint64_t id, uint64_t zVal) :  lid(id),
-                                            z(zVal)
+                                            z(zVal),
+                                            mLayerPos(0),
+                                            mIsLoaded(false)
 {
 }
 
@@ -35,12 +39,17 @@ Layer::~Layer()
     mGeometry.clear();
 }
 
-void Layer::setLayerId(uint64_t id)
+void Layer::setLayerFilePosition(const uint64_t &position)
+{
+    mLayerPos = position;
+}
+
+void Layer::setLayerId(const uint64_t &id)
 {
     lid = id;
 }
 
-void Layer::setZ(uint64_t val)
+void Layer::setZ(const uint64_t &val)
 {
     z = val;
 }
@@ -48,6 +57,11 @@ void Layer::setZ(uint64_t val)
 void Layer::clear()
 {
     mGeometry.clear();
+}
+
+void Layer::setIsLoaded(const bool &isLoaded)
+{
+    mIsLoaded = isLoaded;
 }
 
 void Layer::setGeometry(const std::vector<LayerGeometry::Ptr> &geoms) {
@@ -176,7 +190,7 @@ std::vector<LayerGeometry::Ptr > Layer::getGeometry(ScanMode mode) const
 
 namespace slm {
 
-template LayerGeometryT<LayerGeometry::HATCH>;
-template LayerGeometryT<LayerGeometry::POLYGON>;
-template LayerGeometryT<LayerGeometry::PNTS>;
+template class LayerGeometryT<LayerGeometry::HATCH>;
+template class LayerGeometryT<LayerGeometry::POLYGON>;
+template class LayerGeometryT<LayerGeometry::PNTS>;
 }
