@@ -205,6 +205,8 @@ PYBIND11_MODULE(slm, m) {
         .def_readwrite("pointExposureTime", &BuildStyle::pointExposureTime)
         .def_readwrite("laserId", &BuildStyle::laserId)
         .def_readwrite("laserMode", &BuildStyle::laserMode)
+        .def_readwrite("jumpDelay", &BuildStyle::jumpDelay)
+        .def_readwrite("jumpSpeed", &BuildStyle::jumpSpeed)
         .def("setStyle", &BuildStyle::setStyle, "Sets the paramters of the buildstyle",
                          py::arg("bid"),
                          py::arg("focus"),
@@ -222,6 +224,7 @@ PYBIND11_MODULE(slm, m) {
                                           self.attr("pointDistance"), self.attr("pointExposureTime"),
                                           self.attr("laserId"), self.attr("laserMode"),
                                           self.attr("name"), self.attr("description"),
+                                          self.attr("jumpDelay"), self.attr("jumpSpeed"),
                                           self.attr("__dict__"));
                 },
                  [](const py::tuple &t) {
@@ -240,8 +243,10 @@ PYBIND11_MODULE(slm, m) {
                      p->laserMode = t[7].cast<int>();
                      p->name = t[8].cast<std::u16string>();
                      p->description = t[9].cast<std::u16string>();
+                     p->jumpDelay = t[10].cast<int>();
+                     p->jumpSpeed = t[11].cast<int>();
 
-                     auto py_state = t[10].cast<py::dict>();
+                     auto py_state = t[12].cast<py::dict>();
                      return std::make_pair(p, py_state);
 
                 }
@@ -287,6 +292,12 @@ PYBIND11_MODULE(slm, m) {
                 }
             ));
 
+    py::enum_<slm::LaserMode>(m, "LaserMode")
+        .value("Default", LaserMode::PULSE)
+        .value("CW", LaserMode::CW)
+        .value("Pulse", LaserMode::PULSE)
+        .export_values();
+
     py::enum_<slm::ScanMode>(m, "ScanMode")
         .value("Default", ScanMode::NONE)
         .value("ContourFirst", ScanMode::CONTOUR_FIRST)
@@ -297,6 +308,8 @@ PYBIND11_MODULE(slm, m) {
         .def(py::init())
         .def(py::init<uint64_t, uint64_t>(), py::arg("id"), py::arg("z"))
         .def("__len__", [](const Layer &s ) { return s.geometry().size(); })
+        .def_property_readonly("layerFilePosition", &Layer::layerFilePosition)
+        .def("isLoaded", &Layer::isLoaded)
         .def("getPointsGeometry", &Layer::getPntsGeometry)
         .def("getHatchGeometry", &Layer::getHatchGeometry)
         .def("getContourGeometry", &Layer::getContourGeometry)
@@ -317,7 +330,7 @@ PYBIND11_MODULE(slm, m) {
                          throw std::runtime_error("Invalid state!");
 
                      auto p = std::make_shared<Layer>(t[0].cast<int>(), /* Layer Id */
-                                                              t[1].cast<int>()  /* Layer Z */);
+                                                      t[1].cast<int>()  /* Layer Z */);
 
 
                      p->setGeometry(t[2].cast<std::vector<LayerGeometry::Ptr>>());
