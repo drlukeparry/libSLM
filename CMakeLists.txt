@@ -159,7 +159,7 @@ if(BUILD_PYTHON)
 
 
      add_executable(main ${App_SRCS})
-     target_link_libraries(main SLM_static MTT_static)
+     target_link_libraries(main SLM_static MTT_static SLMSol_static)
 
     #install(TARGETS slm DESTINATION lib/libSLM)
 
