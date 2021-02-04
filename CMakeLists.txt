@@ -26,10 +26,10 @@ if(WIN32)
     # Remove Security definitions for the library
     # Remove run time checks for windows
     IF(MSVC)
-      STRING(REPLACE "/EHsc" "/EHa" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-      STRING(REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /clr /INCREMENTAL:NO /bigobj /arch:AVX2")
-      add_definitions(-D_SECURE_SCL=0 )
+        
+        set(COMMON_LANGUAGE_RUNTIME "")
+        set(EIGEN3_INCLUDE_DIR External/eigen)
+
     endif(MSVC)
 
     # Copy the shared libraries and libs to the main directory
@@ -76,7 +76,6 @@ set(BASE_SRCS
 
 SOURCE_GROUP("Base" FILES ${BASE_SRCS})
 
-
 set(APP_H_SRCS
     App/Header.h
 #    App/Iterator.h
@@ -88,7 +87,6 @@ set(APP_H_SRCS
     App/Utils.h
 )
 
-
 set(APP_CPP_SRCS
 #    App/Iterator.cpp
     App/Layer.cpp
@@ -96,6 +94,7 @@ set(APP_CPP_SRCS
     App/Reader.cpp
 #    App/Slm.cpp
     App/Writer.cpp
+    App/Utils.cpp
 )
 
 set(APP_SRCS
@@ -112,29 +111,43 @@ set(LIBSLM_SRCS
     ${APP_SRCS}
 )
 
-# Add the library
-add_library(SLM SHARED ${LIBSLM_SRCS})
-add_library(SLM_static STATIC ${LIBSLM_SRCS})
+if(BUILD_PYTHON)
+    # Add the library
+    add_library(SLM_static STATIC ${LIBSLM_SRCS})
 
-GENERATE_EXPORT_HEADER(SLM
-             BASE_NAME SLM
-             EXPORT_MACRO_NAME SLM_EXPORT
-             EXPORT_FILE_NAME SLM_Export.h
-             STATIC_DEFINE SLM_BUILT_AS_STATIC
+    GENERATE_EXPORT_HEADER(SLM_static
+                 BASE_NAME SLM
+                 EXPORT_MACRO_NAME SLM_EXPORT
+                 EXPORT_FILE_NAME SLM_Export.h
+                 STATIC_DEFINE SLM_BUILT_AS_STATIC)
+
+
+else(BUILD_PYTHON)
+    message(STATUS "Building libSLM Python Module - Dynamic Library")
+    add_library(SLM SHARED ${LIBSLM_SRCS})
+
+    GENERATE_EXPORT_HEADER(SLM
+                 BASE_NAME SLM
+                 EXPORT_MACRO_NAME SLM_EXPORT
+                 EXPORT_FILE_NAME SLM_Export.h
+                 STATIC_DEFINE SLM_BUILT_AS_STATIC)
+
+endif(BUILD_PYTHON)
+
+set(App_SRCS
+    main.cpp
 )
 
-
 SOURCE_GROUP("App" FILES ${App_SRCS})
-target_link_libraries(SLM)
 
 add_subdirectory(Translators)
 
 if(BUILD_PYTHON)
     set(LIBSLM_PY_SRCS
+
         python/libSLM/module.cpp
-        python/libSLM/utils.h
     )
-    
+
     SOURCE_GROUP("Python" FILES ${LIBSLM_PY_SRCS})
 
     pybind11_add_module(slm ${LIBSLM_PY_SRCS})
@@ -144,17 +157,18 @@ if(BUILD_PYTHON)
     set_target_properties(slm PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
                                          SUFFIX "${PYTHON_MODULE_EXTENSION}")
 
-    install(TARGETS slm DESTINATION lib/libSLM)
 
+     add_executable(main ${App_SRCS})
+     target_link_libraries(main SLM_static MTT_static SLMSol_static)
+
+    #install(TARGETS slm DESTINATION lib/libSLM)
+
+else()
+
+    add_executable(main ${App_SRCS})
+    target_link_libraries(main SLM MTT)
 
 endif(BUILD_PYTHON)
-
-set(App_SRCS
-    main.cpp
-)
-
-add_executable(main ${App_SRCS})
-target_link_libraries(main SLM MTT)
 
 install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/SLM_Export.h

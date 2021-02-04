@@ -59,7 +59,7 @@ class CMakeBuild(build_ext):
             build_args += ['--', '/m']
         else:
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
-            build_args += ['--', '-j2']
+            build_args += ['--', '-j4']
 
         cmake_args += ['-DCMAKE_INSTALL_PREFIX=' + '.']
         
@@ -76,7 +76,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name='libSLM',
-    version='0.2.0',
+    version='0.2.2',
     author='Luke Parry',
     author_email='dev@lukeparry.uk',
     url='https://github.com/drlukeparry/libslm',

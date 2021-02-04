@@ -16,8 +16,8 @@
 #include <App/Model.h>
 #include <App/Reader.h>
 
-#include <Translators/MTT/Reader.h>
-#include <Translators/MTT/Writer.h>
+//#include <Translators/MTT/Reader.h>
+//#include <Translators/MTT/Writer.h>
 
 #include "utils.h"
 
@@ -203,20 +203,28 @@ PYBIND11_MODULE(slm, m) {
         .def_readwrite("laserFocus",        &BuildStyle::laserFocus)
         .def_readwrite("pointDistance",     &BuildStyle::pointDistance)
         .def_readwrite("pointExposureTime", &BuildStyle::pointExposureTime)
+        .def_readwrite("laserId", &BuildStyle::laserId)
+        .def_readwrite("laserMode", &BuildStyle::laserMode)
+        .def_readwrite("jumpDelay", &BuildStyle::jumpDelay)
+        .def_readwrite("jumpSpeed", &BuildStyle::jumpSpeed)
         .def("setStyle", &BuildStyle::setStyle, "Sets the paramters of the buildstyle",
                          py::arg("bid"),
                          py::arg("focus"),
                          py::arg("power"),
                          py::arg("pointExposureTime"),
                          py::arg("pointExposureDistance"),
-                         py::arg("speed") = 0.0)
+                         py::arg("speed") = 0.0,
+                         py::arg("laserId") = 1,
+                         py::arg("laserMode") = 1)
         .def(py::pickle(
                 [](py::object self) { // __getstate__
                     /* Return a tuple that fully encodes the state of the object */
                     return py::make_tuple(self.attr("bid"),
                                           self.attr("laserPower"), self.attr("laserSpeed"), self.attr("laserFocus"),
                                           self.attr("pointDistance"), self.attr("pointExposureTime"),
+                                          self.attr("laserId"), self.attr("laserMode"),
                                           self.attr("name"), self.attr("description"),
+                                          self.attr("jumpDelay"), self.attr("jumpSpeed"),
                                           self.attr("__dict__"));
                 },
                  [](const py::tuple &t) {
@@ -231,10 +239,14 @@ PYBIND11_MODULE(slm, m) {
                      p->laserFocus = t[3].cast<float>();
                      p->pointDistance = t[4].cast<int>();
                      p->pointExposureTime = t[5].cast<int>();
-                     p->name = t[6].cast<std::u16string>();
-                     p->description = t[7].cast<std::u16string>();
+                     p->laserId = t[6].cast<int>();
+                     p->laserMode = t[7].cast<int>();
+                     p->name = t[8].cast<std::u16string>();
+                     p->description = t[9].cast<std::u16string>();
+                     p->jumpDelay = t[10].cast<int>();
+                     p->jumpSpeed = t[11].cast<int>();
 
-                     auto py_state = t[8].cast<py::dict>();
+                     auto py_state = t[12].cast<py::dict>();
                      return std::make_pair(p, py_state);
 
                 }
@@ -280,6 +292,12 @@ PYBIND11_MODULE(slm, m) {
                 }
             ));
 
+    py::enum_<slm::LaserMode>(m, "LaserMode")
+        .value("Default", LaserMode::PULSE)
+        .value("CW", LaserMode::CW)
+        .value("Pulse", LaserMode::PULSE)
+        .export_values();
+
     py::enum_<slm::ScanMode>(m, "ScanMode")
         .value("Default", ScanMode::NONE)
         .value("ContourFirst", ScanMode::CONTOUR_FIRST)
@@ -290,6 +308,8 @@ PYBIND11_MODULE(slm, m) {
         .def(py::init())
         .def(py::init<uint64_t, uint64_t>(), py::arg("id"), py::arg("z"))
         .def("__len__", [](const Layer &s ) { return s.geometry().size(); })
+        .def_property_readonly("layerFilePosition", &Layer::layerFilePosition)
+        .def("isLoaded", &Layer::isLoaded)
         .def("getPointsGeometry", &Layer::getPntsGeometry)
         .def("getHatchGeometry", &Layer::getHatchGeometry)
         .def("getContourGeometry", &Layer::getContourGeometry)
@@ -310,7 +330,7 @@ PYBIND11_MODULE(slm, m) {
                          throw std::runtime_error("Invalid state!");
 
                      auto p = std::make_shared<Layer>(t[0].cast<int>(), /* Layer Id */
-                                                              t[1].cast<int>()  /* Layer Z */);
+                                                      t[1].cast<int>()  /* Layer Z */);
 
 
                      p->setGeometry(t[2].cast<std::vector<LayerGeometry::Ptr>>());

@@ -5,7 +5,8 @@
 
 #include <Translators/MTT/Reader.h>
 #include <Translators/MTT/Writer.h>
-
+#include <Translators/SLMSOL/Reader.h>
+#include <Translators/SLMSOL/Writer.h>
 
 int main(int argc, char *argv[])
 {

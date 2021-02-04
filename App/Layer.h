@@ -40,11 +40,6 @@ public:
 
     Eigen::MatrixXf coords;
 
-#if 0
-    uint32_t mid() const { return mid; }
-    uint32_t bid() const { return bid; }
-#endif
-
 protected:
     uint32_t modelId = 0;
     uint32_t buildId = 0;
@@ -75,45 +70,6 @@ public:
     const static TYPE type = T;
     virtual TYPE getType() const { return type; }
 };
-#if 0
-
-class SLM_EXPORT ContourGeometry : public LayerGeometry
-{
-public:
-    ContourGeometry() {}
-    ~ContourGeometry() {}
-
-public:
-    const static TYPE type = POLYGON;
-    virtual TYPE getType() const { return type; }
-};
-
-class SLM_EXPORT HatchGeometry : public LayerGeometry
-{
-public:
-    HatchGeometry() {}
-    ~HatchGeometry() {}
-
-public:
-    const static TYPE type = HATCH;
-    virtual TYPE getType() const { return type; }
-};
-
-
-
-
-class SLM_EXPORT PntsGeometry : public LayerGeometry
-{
-public:
-    PntsGeometry() {}
-    ~PntsGeometry() {}
-
-public:
-    const static TYPE type = PNTS;
-    virtual TYPE getType() const { return type; }
-};
-
-#endif
 
 class SLM_EXPORT Layer
 {
@@ -132,8 +88,10 @@ public:
     /**
      * Setters
      */
-    void setLayerId(uint64_t id);
-    void setZ(uint64_t val);
+    void setLayerId(const uint64_t &id);
+    void setZ(const uint64_t &val);
+    void setLayerFilePosition(const uint64_t &position);
+    void setIsLoaded(const bool &isLoaded);
 
     // Add different types of geometry to each layer
     template <class T>
@@ -176,13 +134,17 @@ public:
     /**
      * Getters
      */
+    uint64_t layerFilePosition() const { return mLayerPos; }
     uint64_t getZ()       const { return z; }
     uint64_t getLayerId() const { return lid; }
+    bool isLoaded() const { return mIsLoaded; }
 
 protected:
     uint64_t lid = 0;    // Layer ID
     uint64_t z = 0;      // Z Layer Position
+    uint64_t mLayerPos;
     std::vector<LayerGeometry::Ptr> mGeometry;
+    bool mIsLoaded;
 };
 
 using HatchGeometry   = slm::LayerGeometryT<LayerGeometry::HATCH>;

@@ -1,8 +1,7 @@
-#include <codecvt>
-#include <locale>
 #include <string>
 #include <algorithm>
 
+#include "Utils.h"
 #include "Model.h"
 
 using namespace slm;
@@ -16,7 +15,11 @@ BuildStyle::BuildStyle() : id(0),
                            laserFocus(0.0),
                            laserSpeed(0.0),
                            pointDistance(0),
-                           pointExposureTime(0)
+                           pointExposureTime(0),
+                           laserId(1),
+                           laserMode(1),
+                           jumpSpeed(0),
+                           jumpDelay(0)
 
 {
 
@@ -32,7 +35,9 @@ void BuildStyle::setStyle(uint64_t bid,
               float power,
               uint64_t pExpTime,
               uint64_t pDistTime,
-              float speed)
+              float speed,
+              uint64_t lId,
+              LaserMode lMode)
 {
     // Convenience function
     id = bid;
@@ -41,6 +46,9 @@ void BuildStyle::setStyle(uint64_t bid,
     laserSpeed = speed;
     pointExposureTime = pExpTime;
     pointDistance = pDistTime;
+    laserId = lId;
+    laserMode = lMode;
+
 }
 
 
@@ -49,8 +57,8 @@ Model::Model() : id(0),
 {
 }
 
-Model::Model(uint64_t mid, uint64_t sliceNum) : id(mid),
-                                                topSliceNum(sliceNum)
+Model::Model(uint64_t mid, uint64_t topSliceNum) : id(mid),
+                                                   topSliceNum(topSliceNum)
 {
 }
 
@@ -60,23 +68,17 @@ Model::~Model()
 
 std::string Model::getNameAsString() const
 {
-    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>,char16_t> converter;
-
-    return converter.to_bytes(name);
+    return UTF16toASCII(name);
 }
 
 std::string Model::getBuildStyleNameAsString() const
 {
-    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>,char16_t> converter;
-
-    return converter.to_bytes(buildStyleName);
+    return UTF16toASCII(buildStyleName);
 }
 
 std::string Model::getBuildStlyeDescriptionAsString() const
 {
-    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>,char16_t> converter;
-
-    return converter.to_bytes(buildStyleDescription);
+    return UTF16toASCII(buildStyleDescription);
 }
 
 void Model::clear()
