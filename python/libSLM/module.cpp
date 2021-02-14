@@ -215,7 +215,7 @@ PYBIND11_MODULE(slm, m) {
                          py::arg("pointExposureDistance"),
                          py::arg("speed") = 0.0,
                          py::arg("laserId") = 1,
-                         py::arg("laserMode") = 1)
+                         py::arg("laserMode") = slm::LaserMode::PULSE)
         .def(py::pickle(
                 [](py::object self) { // __getstate__
                     /* Return a tuple that fully encodes the state of the object */
@@ -225,6 +225,7 @@ PYBIND11_MODULE(slm, m) {
                                           self.attr("laserId"), self.attr("laserMode"),
                                           self.attr("name"), self.attr("description"),
                                           self.attr("jumpDelay"), self.attr("jumpSpeed"),
+                                          self.attr("description"),
                                           self.attr("__dict__"));
                 },
                  [](const py::tuple &t) {
@@ -240,13 +241,14 @@ PYBIND11_MODULE(slm, m) {
                      p->pointDistance = t[4].cast<int>();
                      p->pointExposureTime = t[5].cast<int>();
                      p->laserId = t[6].cast<int>();
-                     p->laserMode = t[7].cast<int>();
+                     p->laserMode = t[7].cast<slm::LaserMode>();
                      p->name = t[8].cast<std::u16string>();
                      p->description = t[9].cast<std::u16string>();
                      p->jumpDelay = t[10].cast<int>();
                      p->jumpSpeed = t[11].cast<int>();
+                     p->description = t[12].cast<std::u16string>();
 
-                     auto py_state = t[12].cast<py::dict>();
+                     auto py_state = t[13].cast<py::dict>();
                      return std::make_pair(p, py_state);
 
                 }
