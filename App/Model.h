@@ -30,7 +30,7 @@ public:
     ~BuildStyle();
 
     void setStyle(uint64_t bid,
-                  uint64_t focus,
+                  float focus,
                   float power,
                   uint64_t pExpTime,
                   uint64_t pDistTime,
