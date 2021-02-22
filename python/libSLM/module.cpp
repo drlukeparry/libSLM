@@ -40,6 +40,18 @@ PYBIND11_MODULE(slm, m) {
     )pbdoc";
 
 
+    py::enum_<slm::LaserMode>(m, "LaserMode")
+        .value("Default", LaserMode::PULSE)
+        .value("CW", LaserMode::CW)
+        .value("Pulse", LaserMode::PULSE)
+        .export_values();
+
+    py::enum_<slm::ScanMode>(m, "ScanMode")
+        .value("Default", ScanMode::NONE)
+        .value("ContourFirst", ScanMode::CONTOUR_FIRST)
+        .value("HatchFirst", ScanMode::HATCH_FIRST)
+        .export_values();
+
     py::class_<slm::LayerGeometry, std::shared_ptr<slm::LayerGeometry>> layerGeomPyType(m, "LayerGeometry", py::dynamic_attr());
 
     layerGeomPyType.def(py::init())
@@ -293,18 +305,6 @@ PYBIND11_MODULE(slm, m) {
 
                 }
             ));
-
-    py::enum_<slm::LaserMode>(m, "LaserMode")
-        .value("Default", LaserMode::PULSE)
-        .value("CW", LaserMode::CW)
-        .value("Pulse", LaserMode::PULSE)
-        .export_values();
-
-    py::enum_<slm::ScanMode>(m, "ScanMode")
-        .value("Default", ScanMode::NONE)
-        .value("ContourFirst", ScanMode::CONTOUR_FIRST)
-        .value("HatchFirst", ScanMode::HATCH_FIRST)
-        .export_values();
 
     py::class_<slm::Layer, std::shared_ptr<slm::Layer>>(m, "Layer", py::dynamic_attr())
         .def(py::init())

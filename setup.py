@@ -76,7 +76,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name='libSLM',
-    version='0.2.2',
+    version='0.2.3',
     author='Luke Parry',
     author_email='dev@lukeparry.uk',
     url='https://github.com/drlukeparry/libslm',
@@ -98,6 +98,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Natural Language :: English',
         'Topic :: Scientific/Engineering'],
     license="",
