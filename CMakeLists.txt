@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(libSLM VERSION 0.2.0)
+project(libSLM VERSION 0.2.3)
 
 # Set c++ to use cx11 as a requirement
 set(CMAKE_CXX_STANDARD 11)
