@@ -7,6 +7,8 @@
 #include <Translators/MTT/Writer.h>
 #include <Translators/SLMSOL/Reader.h>
 #include <Translators/SLMSOL/Writer.h>
+#include <Translators/Realizer/Reader.h>
+#include <Translators/Realizer/Writer.h>
 
 int main(int argc, char *argv[])
 {
@@ -22,18 +24,45 @@ int main(int argc, char *argv[])
 
     std::cout << "Reading file" << filePath << std::endl;
 
-    slm::MTT::Reader reader(filePath);
+    int mode = 2;
+    
+    if(mode == 1) {
+        slm::MTT::Reader reader(filePath);
 
-    std::cout << "Parsing File" << std::endl;
-    reader.parse();
+        std::cout << "Parsing File" << std::endl;
+        reader.parse();
 
-    slm::MTT::Writer writer("out.mtt");
+        slm::MTT::Writer writer("out.mtt");
 
-    slm::Header header;
-    header.zUnit = reader.getZUnit();
-    header.vMajor = 1;
-    header.vMinor = 6;
-    header.fileName = "MTT Layerfile";
+        slm::Header header;
+        header.zUnit = reader.getZUnit();
+        header.vMajor = 1;
+        header.vMinor = 6;
+        header.fileName = "MTT Layerfile";
 
-    writer.write(header, reader.getModels(), reader.getLayers());
+        writer.write(header, reader.getModels(), reader.getLayers());
+
+    } else if(mode == 2) {
+
+        slm::realizer::Reader reader(filePath);
+
+        std::cout << "Parsing File" << std::endl;
+        reader.parse();
+
+        slm::realizer::Writer writer("out.rea");
+
+        slm::Header header;
+
+        header.zUnit = 1000;
+        header.vMajor = 4;
+        header.vMinor = 7;
+        header.fileName = "out.rea";
+
+        std::string headerStr = reader.getHeader();
+        writer.setHeaderText(headerStr);
+
+        writer.write(header, reader.getModels(), reader.getLayers());
+    
+    }
+    
 }
