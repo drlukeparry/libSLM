@@ -11,6 +11,7 @@ namespace slm {
 struct Header
 {
     std::string fileName;
+    std::string creator;
 
     void setVersion(std::tuple<int,int> version) { std::tie(vMajor, vMinor) = version; }
     std::tuple<int, int> version() const { return std::make_tuple(vMajor, vMinor); }
