@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(libSLM VERSION 0.2.4)
+project(libSLM VERSION 0.2.5)
 
 # Set c++ to use cx11 as a requirement
 set(CMAKE_CXX_STANDARD 11)
@@ -155,14 +155,14 @@ if(BUILD_PYTHON)
 
 
      add_executable(main ${App_SRCS})
-     target_link_libraries(main SLM_static MTT_static SLMSol_static Realizer_static)
+     target_link_libraries(main SLM_static MTT_static EOS_static SLMSol_static Realizer_static)
 
     #install(TARGETS slm DESTINATION lib/libSLM)
 
 else()
 
     add_executable(main ${App_SRCS})
-    target_link_libraries(main SLM MTT Realizer)
+    target_link_libraries(main SLM EOS MTT Realizer  SLMSol)
 
 endif(BUILD_PYTHON)
 
