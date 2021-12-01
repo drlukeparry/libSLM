@@ -3,12 +3,17 @@
 
 #include <App/Header.h>
 
+#include <Translators/EOS/Reader.h>
+#include <Translators/EOS/Writer.h>
+
 #include <Translators/MTT/Reader.h>
 #include <Translators/MTT/Writer.h>
-#include <Translators/SLMSOL/Reader.h>
-#include <Translators/SLMSOL/Writer.h>
+
 #include <Translators/Realizer/Reader.h>
 #include <Translators/Realizer/Writer.h>
+
+#include <Translators/SLMSOL/Reader.h>
+#include <Translators/SLMSOL/Writer.h>
 
 int main(int argc, char *argv[])
 {
@@ -18,21 +23,19 @@ int main(int argc, char *argv[])
     }
 
     std::string path = argv[0];
-    std::string file = argv[1];
+    std::string mode = argv[1];
+    std::string inputFilename = argv[2];
+    std::string outputFilename = argv[3];
 
-    std::string filePath = file;
+    std::cout << "Reading file " << inputFilename << std::endl;
 
-    std::cout << "Reading file" << filePath << std::endl;
-
-    int mode = 2;
-    
-    if(mode == 1) {
-        slm::MTT::Reader reader(filePath);
+    if(mode.find("mtt") != std::string::npos) {
+        slm::MTT::Reader reader(inputFilename);
 
         std::cout << "Parsing File" << std::endl;
         reader.parse();
 
-        slm::MTT::Writer writer("out.mtt");
+        slm::MTT::Writer writer(outputFilename);
 
         slm::Header header;
         header.zUnit = reader.getZUnit();
@@ -42,27 +45,50 @@ int main(int argc, char *argv[])
 
         writer.write(header, reader.getModels(), reader.getLayers());
 
-    } else if(mode == 2) {
+    } else if(mode.find("realizer") != std::string::npos) {
 
-        slm::realizer::Reader reader(filePath);
+        slm::realizer::Reader reader(inputFilename);
 
         std::cout << "Parsing File" << std::endl;
         reader.parse();
 
-        slm::realizer::Writer writer("out.rea");
+        slm::realizer::Writer writer(outputFilename);
 
         slm::Header header;
 
         header.zUnit = 1000;
         header.vMajor = 4;
         header.vMinor = 7;
-        header.fileName = "out.rea";
+        header.fileName = outputFilename;
 
         std::string headerStr = reader.getHeader();
         writer.setHeaderText(headerStr);
 
         writer.write(header, reader.getModels(), reader.getLayers());
     
+    } else if(mode.find("eos") != std::string::npos) {
+
+        slm::eos::Reader reader(inputFilename);
+
+        std::cout << "Parsing File" << std::endl;
+        reader.parse();
+
+        slm::eos::Writer writer(outputFilename);
+
+        slm::Header header;
+
+        header.zUnit = 1000;
+        header.vMajor = 4;
+        header.vMinor = 7;
+        header.fileName = outputFilename;
+
+        float sf = reader.getScaleFactor();
+        writer.setScaleFactor(sf);
+
+        writer.write(header, reader.getModels(), reader.getLayers());
+
+    } else {
+        std::cerr << "Error: Invalid option given";
     }
     
 }
