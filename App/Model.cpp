@@ -18,6 +18,7 @@ BuildStyle::BuildStyle() : id(0),
                            pointExposureTime(0),
                            laserId(1),
                            laserMode(1),
+                           pointDelay(0),
                            jumpSpeed(0),
                            jumpDelay(0)
 

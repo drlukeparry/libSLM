@@ -288,6 +288,7 @@ PYBIND11_MODULE(slm, m) {
         .def_readwrite("pointExposureTime", &BuildStyle::pointExposureTime)
         .def_readwrite("laserId",   &BuildStyle::laserId)
         .def_readwrite("laserMode", &BuildStyle::laserMode)
+        .def_readwrite("pointDelay", &BuildStyle::pointDelay)
         .def_readwrite("jumpDelay", &BuildStyle::jumpDelay)
         .def_readwrite("jumpSpeed", &BuildStyle::jumpSpeed)
         .def("setStyle", &BuildStyle::setStyle, "Sets the paramters of the buildstyle",
