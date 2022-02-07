@@ -27,13 +27,17 @@ public:
     
     std::string getFilePath() { return filePath; }
     void setFilePath(std::string path);
+    int64_t getFileSize() const;
 
     virtual double getLayerThickness() const = 0;
     
     Model::Ptr getModelById(uint64_t mid) const;
     std::vector<Model::Ptr> getModels() const { return models;}
     std::vector<Layer::Ptr> getLayers() const { return layers;}
-    
+
+    Layer::Ptr getTopLayerByPosition(const std::vector<Layer::Ptr> &layers);
+    Layer::Ptr getTopLayerById(const std::vector<Layer::Ptr> &layers);
+
 protected:
     void setReady(bool state) { ready = state; }
     std::string filePath;

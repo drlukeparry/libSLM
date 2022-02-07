@@ -53,6 +53,7 @@ public:
     float   laserSpeed;
 
     uint64_t  pointDistance;
+    uint64_t  pointDelay;
     uint64_t  pointExposureTime;
     uint64_t  jumpSpeed;
     uint64_t  jumpDelay;

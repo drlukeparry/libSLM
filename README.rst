@@ -23,8 +23,8 @@ Current importing and exporting capabilities available via libSLM:
 * Renishaw (**.mtt**) (Currently working with QuantAM 5.3)
 * DMG Mori - Realizer (**.rea**)
 * Fockele and Schwarze File Format  (**.f&s**) - Currently work in progress
-* EOS (**.sli**) - currently work in progress
-* SLM Solutions (**.slm**) -Currently work in progress
+* EOS (**.sli**) - 1st Revision
+* SLM Solutions (**.slm**)
 * CLI (**.cli** - Common Layer Interface)
 
 Access to these specific translators are currently available on request as pre-compiled modules due to sensitivity of
@@ -130,7 +130,7 @@ generic method for storing this information. Additional output may be generated 
     buildFileLayers = layers
 
     # Layer Thickness currently for the file
-    layerThicknessMicrons = reader.getZUnit()
+    layerThicknessMicrons = reader.getZUnit() # zUnit is typically 1000
     layerThickness = reader.getLayerThickness()
 
 

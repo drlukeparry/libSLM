@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(libSLM VERSION 0.2.3)
+project(libSLM VERSION 0.2.5)
 
 # Set c++ to use cx11 as a requirement
 set(CMAKE_CXX_STANDARD 11)
@@ -26,7 +26,7 @@ if(WIN32)
     # Remove Security definitions for the library
     # Remove run time checks for windows
     IF(MSVC)
-        
+
         set(COMMON_LANGUAGE_RUNTIME "")
         set(EIGEN3_INCLUDE_DIR External/eigen)
 
@@ -37,7 +37,7 @@ if(WIN32)
     SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
     SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
-else(WIN32)    
+else(WIN32)
 
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
@@ -78,21 +78,17 @@ SOURCE_GROUP("Base" FILES ${BASE_SRCS})
 
 set(APP_H_SRCS
     App/Header.h
-#    App/Iterator.h
     App/Layer.h
     App/Model.h
     App/Reader.h
-#    App/Slm.h
     App/Writer.h
     App/Utils.h
 )
 
 set(APP_CPP_SRCS
-#    App/Iterator.cpp
     App/Layer.cpp
     App/Model.cpp
     App/Reader.cpp
-#    App/Slm.cpp
     App/Writer.cpp
     App/Utils.cpp
 )
@@ -159,14 +155,14 @@ if(BUILD_PYTHON)
 
 
      add_executable(main ${App_SRCS})
-     target_link_libraries(main SLM_static MTT_static SLMSol_static)
+     target_link_libraries(main SLM_static MTT_static EOS_static SLMSol_static Realizer_static)
 
     #install(TARGETS slm DESTINATION lib/libSLM)
 
 else()
 
     add_executable(main ${App_SRCS})
-    target_link_libraries(main SLM MTT)
+    target_link_libraries(main SLM EOS MTT Realizer SLMSol)
 
 endif(BUILD_PYTHON)
 

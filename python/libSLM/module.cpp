@@ -15,9 +15,7 @@
 #include <App/Layer.h>
 #include <App/Model.h>
 #include <App/Reader.h>
-
-//#include <Translators/MTT/Reader.h>
-//#include <Translators/MTT/Writer.h>
+#include <App/Writer.h>
 
 #include "utils.h"
 
@@ -39,6 +37,78 @@ PYBIND11_MODULE(slm, m) {
 
     )pbdoc";
 
+#if 1
+    /*
+     * Create a trampolise class for slm::Reader as this contains a pure virtual function
+     */
+    class PyReader : public slm::base::Reader {
+    public:
+        /* Inherit the constructors */
+        using slm::base::Reader::Reader;
+
+        /* Trampoline (need one for each virtual function) */
+        int parse() override {
+            PYBIND11_OVERRIDE_PURE(
+                int, /* Return type */
+                Reader,      /* Parent class */
+                parse        /* Name of function in C++ (must match Python name) */
+                             /* Argument(s) */
+            );
+        }
+
+        double getLayerThickness() const override {
+            PYBIND11_OVERRIDE_PURE(
+                double, /* Return type */
+                Reader,      /* Parent class */
+                getLayerThickness  /* Name of function in C++ (must match Python name) */
+                /* Argument(s) */
+            );
+        }
+    };
+
+    class PyWriter : public slm::base::Writer {
+    public:
+        /* Inherit the constructors */
+        using slm::base::Writer::Writer;
+
+        /* Trampoline (need one for each virtual function) */
+        void write(const Header &header,
+                   const std::vector<Model::Ptr> &models,
+                   const std::vector<Layer::Ptr> &layers) override {
+            PYBIND11_OVERRIDE_PURE(
+                void, /* Return type */
+                Writer,      /* Parent class */
+                write,       /* Name of function in C++ (must match Python name) */
+                header, models, layers              /* Argument(s) */
+            );
+        }
+
+    };
+
+    py::class_<slm::base::Reader, PyReader>(m, "Reader")
+        .def(py::init())
+        .def("setFilePath", &slm::base::Reader::setFilePath, py::arg("filename"))
+        .def("getFilePath", &slm::base::Reader::getFilePath)
+        .def("parse", &slm::base::Reader::parse)
+        .def("getFileSize", &slm::base::Reader::getFileSize)
+        .def("getLayerThickness", &slm::base::Reader::getLayerThickness)
+        .def("getModelById", &slm::base::Reader::getModelById, py::arg("mid"))
+        .def_property_readonly("layers", &slm::base::Reader::getLayers)
+        .def_property_readonly("models", &slm::base::Reader::getModels);
+
+    py::class_<slm::base::Writer, PyWriter>(m, "Writer")
+        .def(py::init())
+        .def(py::init<std::string>())
+        .def("setFilePath", &slm::base::Writer::setFilePath)
+        .def("getFilePath", &slm::base::Writer::getFilePath)
+        .def("getLayerMinMax", &slm::base::Writer::getLayerMinMax)
+        .def("getTotalNumHatches", &slm::base::Writer::getTotalNumHatches)
+        .def("getTotalNumContours", &slm::base::Writer::getTotalNumContours)
+        .def("getBoundingBox", &slm::base::Writer::getBoundingBox)
+        .def_property("sortLayers", &slm::base::Writer::isSortingLayers, &slm::base::Writer::setSortLayers)
+        .def("write", &slm::base::Writer::write, py::arg("header"), py::arg("models"), py::arg("layers"));
+
+#endif
 
     py::enum_<slm::LaserMode>(m, "LaserMode")
         .value("Default", LaserMode::PULSE)
@@ -183,7 +253,8 @@ PYBIND11_MODULE(slm, m) {
     py::class_<slm::Header>(m, "Header", py::dynamic_attr())
         .def(py::init())
         .def_readwrite("filename", &Header::fileName)
-        .def_property("version",  &Header::version, &Header::setVersion)
+        .def_readwrite("creator",  &Header::creator)
+        .def_property("version",   &Header::version, &Header::setVersion)
         .def_readwrite("zUnit",    &Header::zUnit)
         .def(py::pickle(
                 [](py::object self) { // __getstate__
@@ -215,8 +286,9 @@ PYBIND11_MODULE(slm, m) {
         .def_readwrite("laserFocus",        &BuildStyle::laserFocus)
         .def_readwrite("pointDistance",     &BuildStyle::pointDistance)
         .def_readwrite("pointExposureTime", &BuildStyle::pointExposureTime)
-        .def_readwrite("laserId", &BuildStyle::laserId)
+        .def_readwrite("laserId",   &BuildStyle::laserId)
         .def_readwrite("laserMode", &BuildStyle::laserMode)
+        .def_readwrite("pointDelay", &BuildStyle::pointDelay)
         .def_readwrite("jumpDelay", &BuildStyle::jumpDelay)
         .def_readwrite("jumpSpeed", &BuildStyle::jumpSpeed)
         .def("setStyle", &BuildStyle::setStyle, "Sets the paramters of the buildstyle",
@@ -236,6 +308,7 @@ PYBIND11_MODULE(slm, m) {
                                           self.attr("pointDistance"), self.attr("pointExposureTime"),
                                           self.attr("laserId"), self.attr("laserMode"),
                                           self.attr("name"), self.attr("description"),
+                                          self.attr("pointDelay"),
                                           self.attr("jumpDelay"), self.attr("jumpSpeed"),
                                           self.attr("description"),
                                           self.attr("__dict__"));
@@ -256,11 +329,12 @@ PYBIND11_MODULE(slm, m) {
                      p->laserMode = t[7].cast<slm::LaserMode>();
                      p->name = t[8].cast<std::u16string>();
                      p->description = t[9].cast<std::u16string>();
-                     p->jumpDelay = t[10].cast<int>();
-                     p->jumpSpeed = t[11].cast<int>();
-                     p->description = t[12].cast<std::u16string>();
+                     p->pointDelay = t[10].cast<int>();
+                     p->jumpDelay = t[11].cast<int>();
+                     p->jumpSpeed = t[12].cast<int>();
+                     p->description = t[13].cast<std::u16string>();
 
-                     auto py_state = t[13].cast<py::dict>();
+                     auto py_state = t[14].cast<py::dict>();
                      return std::make_pair(p, py_state);
 
                 }
@@ -268,6 +342,7 @@ PYBIND11_MODULE(slm, m) {
 
     py::class_<slm::Model, std::shared_ptr<slm::Model>>(m, "Model", py::dynamic_attr())
         .def(py::init())
+        .def(py::init<uint64_t, uint64_t>(), py::arg("mid"), py::arg("topSliceNum"))
         .def_property("mid", &Model::getId, &Model::setId)
         .def("__len__", [](const Model &s ) { return s.getBuildStyles().size(); })
         .def_property("buildStyles",py::cpp_function(&slm::Model::buildStylesRef,py::return_value_policy::reference, py::keep_alive<1,0>()),
