@@ -26,7 +26,7 @@ if(WIN32)
     # Remove Security definitions for the library
     # Remove run time checks for windows
     IF(MSVC)
-        
+
         set(COMMON_LANGUAGE_RUNTIME "")
         set(EIGEN3_INCLUDE_DIR External/eigen)
 
@@ -37,7 +37,7 @@ if(WIN32)
     SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
     SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
-else(WIN32)    
+else(WIN32)
 
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
@@ -162,7 +162,7 @@ if(BUILD_PYTHON)
 else()
 
     add_executable(main ${App_SRCS})
-    target_link_libraries(main SLM EOS MTT Realizer  SLMSol)
+    target_link_libraries(main SLM EOS MTT Realizer SLMSol)
 
 endif(BUILD_PYTHON)
 

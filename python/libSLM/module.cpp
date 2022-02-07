@@ -308,6 +308,7 @@ PYBIND11_MODULE(slm, m) {
                                           self.attr("pointDistance"), self.attr("pointExposureTime"),
                                           self.attr("laserId"), self.attr("laserMode"),
                                           self.attr("name"), self.attr("description"),
+                                          self.attr("pointDelay"),
                                           self.attr("jumpDelay"), self.attr("jumpSpeed"),
                                           self.attr("description"),
                                           self.attr("__dict__"));
@@ -328,11 +329,12 @@ PYBIND11_MODULE(slm, m) {
                      p->laserMode = t[7].cast<slm::LaserMode>();
                      p->name = t[8].cast<std::u16string>();
                      p->description = t[9].cast<std::u16string>();
-                     p->jumpDelay = t[10].cast<int>();
-                     p->jumpSpeed = t[11].cast<int>();
-                     p->description = t[12].cast<std::u16string>();
+                     p->pointDelay = t[10].cast<int>();
+                     p->jumpDelay = t[11].cast<int>();
+                     p->jumpSpeed = t[12].cast<int>();
+                     p->description = t[13].cast<std::u16string>();
 
-                     auto py_state = t[13].cast<py::dict>();
+                     auto py_state = t[14].cast<py::dict>();
                      return std::make_pair(p, py_state);
 
                 }
@@ -340,6 +342,7 @@ PYBIND11_MODULE(slm, m) {
 
     py::class_<slm::Model, std::shared_ptr<slm::Model>>(m, "Model", py::dynamic_attr())
         .def(py::init())
+        .def(py::init<uint64_t, uint64_t>(), py::arg("mid"), py::arg("topSliceNum"))
         .def_property("mid", &Model::getId, &Model::setId)
         .def("__len__", [](const Model &s ) { return s.getBuildStyles().size(); })
         .def_property("buildStyles",py::cpp_function(&slm::Model::buildStylesRef,py::return_value_policy::reference, py::keep_alive<1,0>()),
