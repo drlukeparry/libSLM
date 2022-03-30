@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(libSLM VERSION 0.2.5)
+project(libSLM VERSION 0.2.6)
 
 # Set c++ to use cx11 as a requirement
 set(CMAKE_CXX_STANDARD 11)
@@ -37,13 +37,28 @@ if(WIN32)
     SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
     SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
-else(WIN32)
-
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-
-    # Find Required packages
-    find_package(Eigen3 3.3 REQUIRED)
 endif(WIN32)
+
+if(UNIX)
+
+    if(APPLE)
+
+        # Apple Platforms
+
+        set(EIGEN3_INCLUDE_DIR External/eigen)
+
+    else(APPLE)
+
+        # Other unix platform (i.e. Linux)
+
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
+        # Find Required packages
+        find_package(Eigen3 3.3 REQUIRED)
+
+    endif(APPLE)
+
+endif(UNIX)
 
 
 # Use the replacement of Boost::filesystem from a git submodule provided by WJakob

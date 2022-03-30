@@ -76,7 +76,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name='libSLM',
-    version='0.2.5',
+    version='0.2.6',
     author='Luke Parry',
     author_email='dev@lukeparry.uk',
     url='https://github.com/drlukeparry/libslm',
