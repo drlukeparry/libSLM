@@ -54,10 +54,20 @@ libSLM was designed to not include many dependencies to improve the compatibilit
 - in particular linking to subroutines used in commercial FEA simulation codes. The underlying library is developed
 to be compatible on both Windows and Unix systems.
 
-**On Unix (Linux, OS X)**
+**On Unix (Linux)**
 
 * A compiler (GCC, Clang) with C++11 support
 * CMake >= 3.0
+
+**On Mac OS X (Intel, Arm64)
+
+* Install XCode tools to provide the LLVM compiler-chain if this is not already available.
+* Ensure Cmake is installed and available via brew
+
+.. code:: bash
+
+    brew install cmake
+
 
 **On Windows**
 
