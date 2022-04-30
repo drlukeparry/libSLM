@@ -88,7 +88,7 @@ std::vector<Layer::Ptr> Writer::sortLayers(const std::vector<Layer::Ptr> &layers
     std::vector<Layer::Ptr> layersCpy(layers);
 
     std::sort(layersCpy.begin(), layersCpy.end(), [](Layer::Ptr a, Layer::Ptr b) {
-        return a->getZ() > b->getZ();
+        return a->getZ() < b->getZ();
     });
 
     return layersCpy;
